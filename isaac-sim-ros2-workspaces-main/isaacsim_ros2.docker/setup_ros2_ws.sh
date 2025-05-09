@@ -1,5 +1,5 @@
 #!/bin/bash
-
+pip3 install Cython packaging pytest pytest-ros
 source /opt/ros/humble/setup.sh
 cd /ros2_ws
 rosdep init
