@@ -7,3 +7,4 @@ rosdep update
 rosdep install --from-paths src --ignore-src -r -y
 colcon build --cmake-args -DPython3_EXECUTABLE=/usr/bin/python3.10 --merge-install
 source /ros2_ws/install/setup.sh
+source /opt/ros/humble/setup.bash

@@ -24,5 +24,6 @@ docker run --name nis-ros2-bridge-container -it --gpus all -e "ACCEPT_EULA=Y" --
 -v ~/docker/isaac-sim/documents:/root/Documents:rw \
 -v ~/docker/isaac-sim/exts:/isaac-sim/extsUser:rw \
 -v /home/ubuntu:/home/ubuntu:rw \
+-v /home/ubuntu/isaac-sim-ros2-workspace-main/assets:/isaac-sim/assets:rw \
 $DIR_ARGS \
 nis-ros2-bridge:latest
