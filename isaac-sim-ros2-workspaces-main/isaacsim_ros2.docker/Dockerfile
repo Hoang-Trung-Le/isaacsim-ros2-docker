@@ -47,7 +47,7 @@ RUN /isaac-sim/python.sh -m pip install netifaces skyfield zfpy numba gdown pand
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/isaac-sim/exts/omni.isaac.ros2_bridge/humble/lib
 ENV RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 
-RUN chmod +x /entrypoint.sh
+RUN chmod +x ./entrypoint.sh
 # setup entrypoint
 COPY ../humble_ws/fastdds.xml /etc/fastdds.xml
 COPY isaacsim_ros2.docker/entrypoint.sh /
@@ -59,7 +59,6 @@ RUN echo 'export isaac_sim_package_path=/isaac-sim' >> /.bashrc
 RUN echo 'export FASTRTPS_DEFAULT_PROFILES_FILE=/etc/fastdds.xml' >> /.bashrc
 RUN echo 'export RMW_IMPLEMENTATION=rmw_fastrtps_cpp' >> /.bashrc
 RUN echo 'export ROS_DOMAIN_ID=24' >> /.bashrc
-
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["bash"]
