@@ -16,7 +16,7 @@ from datetime import datetime
 
 
 class ImageStreamer(Node):
-    def __init__(self, topic_name="/camera/raw_image", websocket_port=8765):
+    def __init__(self, topic_name="/camera_1/rgb/image_raw", websocket_port=8765):
         super().__init__("image_streamer")
 
         # Parameters
@@ -72,7 +72,8 @@ class ImageStreamer(Node):
     async def run_websocket_server(self):
         """Run the WebSocket server"""
 
-        async def handler(websocket, path):
+        # Updated handler function - removed path parameter
+        async def handler(websocket):
             # Register new client
             self.connected_clients.add(websocket)
             try:
@@ -93,13 +94,12 @@ class ImageStreamer(Node):
                 )
 
         # Start WebSocket server
-        server = await websockets.serve(handler, "0.0.0.0", self.websocket_port)
+        async with websockets.serve(handler, "0.0.0.0", self.websocket_port):
+            # Start background task to send frames to all clients
+            send_task = asyncio.create_task(self.broadcast_frames())
 
-        # Start background task to send frames to all clients
-        asyncio.create_task(self.broadcast_frames())
-
-        # Keep server running
-        await server.wait_closed()
+            # Keep server running indefinitely
+            await asyncio.Future()
 
     async def broadcast_frames(self):
         """Send frames to all connected clients"""
@@ -125,7 +125,7 @@ class ImageStreamer(Node):
 
                     # Send to all connected clients
                     websockets_to_remove = set()
-                    for websocket in self.connected_clients:
+                    for websocket in list(self.connected_clients):
                         try:
                             await websocket.send(message)
                         except websockets.exceptions.ConnectionClosed:
@@ -133,7 +133,8 @@ class ImageStreamer(Node):
 
                     # Clean up any closed connections
                     for websocket in websockets_to_remove:
-                        self.connected_clients.remove(websocket)
+                        if websocket in self.connected_clients:
+                            self.connected_clients.remove(websocket)
 
                 except Exception as e:
                     self.get_logger().error(f"Error encoding/sending frame: {e}")
@@ -147,7 +148,10 @@ def main(args=None):
         description="Stream ROS2 image topics via WebSocket"
     )
     parser.add_argument(
-        "--topic", type=str, default="/raw_image", help="ROS2 image topic to stream"
+        "--topic",
+        type=str,
+        default="/camera_1/rgb/image_raw",
+        help="ROS2 image topic to stream",
     )
     parser.add_argument("--port", type=int, default=8765, help="WebSocket server port")
 

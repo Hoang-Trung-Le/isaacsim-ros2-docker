@@ -9,13 +9,13 @@ WORKDIR /workspace
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        git \
-		cmake \
-		build-essential \
-		curl \
-		wget \
-		gnupg2 \
-		lsb-release
+    git \
+    cmake \
+    build-essential \
+    curl \
+    wget \
+    gnupg2 \
+    lsb-release
 
 
 # Upgrade installed packages
@@ -46,31 +46,31 @@ RUN curl -s https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
 RUN pip3 install setuptools==70.0.0
 
 RUN apt update && apt install -y \
-  python3-pip \
-  python3-pytest-cov \
-  python3-rosinstall-generator \
-  ros-dev-tools \
-  libbullet-dev \
-  libasio-dev \
-  libtinyxml2-dev \
-  libcunit1-dev \
-  libacl1-dev 
+    python3-pip \
+    python3-pytest-cov \
+    python3-rosinstall-generator \
+    ros-dev-tools \
+    libbullet-dev \
+    libasio-dev \
+    libtinyxml2-dev \
+    libcunit1-dev \
+    libacl1-dev 
 
 RUN python3 -m pip install -U \
-  argcomplete \
-  flake8-blind-except \
-  flake8-builtins \
-  flake8-class-newline \
-  flake8-comprehensions \
-  flake8-deprecated \
-  flake8-docstrings \
-  flake8-import-order \
-  flake8-quotes \
-  pytest-repeat \
-  pytest-rerunfailures \
-  pytest \
-  lark \
-  netifaces
+    argcomplete \
+    flake8-blind-except \
+    flake8-builtins \
+    flake8-class-newline \
+    flake8-comprehensions \
+    flake8-deprecated \
+    flake8-docstrings \
+    flake8-import-order \
+    flake8-quotes \
+    pytest-repeat \
+    pytest-rerunfailures \
+    pytest \
+    lark \
+    netifaces
 
 RUN python3.10 -m pip uninstall numpy -y
 RUN python3.10 -m pip install --upgrade pip
