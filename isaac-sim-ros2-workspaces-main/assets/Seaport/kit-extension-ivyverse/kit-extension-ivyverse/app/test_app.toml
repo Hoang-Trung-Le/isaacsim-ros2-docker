@@ -1,0 +1,19 @@
+# App configuration for testing Ivyverse extension
+
+[package]
+title = "Ivyverse Test App"
+version = "1.0.0"
+keywords = ["app", "ivyverse", "test"]
+
+[dependencies]
+"omni.kit.uiapp" = {}
+"omni.kit.window.viewport" = {}
+"omni.ivyverse" = {}
+
+[[test]]
+args = [
+    "--enable", "omni.ivyverse",
+]
+
+[settings]
+exts."omni.ivyverse".autoload = true

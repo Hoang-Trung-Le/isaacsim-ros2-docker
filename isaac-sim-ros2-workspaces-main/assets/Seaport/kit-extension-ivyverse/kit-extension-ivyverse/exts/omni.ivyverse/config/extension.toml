@@ -1,0 +1,46 @@
+[package]
+# Semantic Versioning is used: https://semver.org/
+version = "1.0.0"
+
+# The title and description fields are primarily for displaying extension info in UI
+title = "Ivyverse - Industrial USD Scene Copilot"
+description="An intelligent copilot for querying and chatting about USD scenes in Omniverse"
+
+# Path (relative to the root) or content of readme markdown file for UI.
+readme  = "docs/README.md"
+
+# URL of the extension source repository.
+repository = ""
+
+# One of categories for UI.
+category = "Scene Analysis"
+
+# Keywords for the extension
+keywords = ["USD", "AI", "copilot", "scene analysis", "LLM"]
+
+# Icon to show in the extension manager
+icon = "data/icon.png"
+
+# Preview to show in the extension manager
+preview_image = "data/preview.png"
+
+# Use omni.ui to build simple UI
+[dependencies]
+"omni.kit.uiapp" = {}
+"omni.kit.window.popup_dialog" = {}
+"omni.usd" = {}
+"omni.kit.viewport" = {}
+
+# Main python module this extension provides, it will be publicly available as "import omni.ivyverse".
+[[python.module]]
+name = "omni.ivyverse"
+
+# Settings to control extension behavior
+[settings]
+exts."omni.ivyverse".autoload = true
+
+[[test]]
+# Extra dependencies only to be used during test run
+dependencies = [
+    "omni.kit.ui_test" # UI testing extension
+]
