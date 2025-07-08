@@ -1,0 +1,47 @@
+from __future__ import annotations
+import orjson.orjson
+import typing
+
+__all__ = [
+    "Fragment",
+    "JSONDecodeError",
+    "JSONEncodeError",
+    "OPT_APPEND_NEWLINE",
+    "OPT_INDENT_2",
+    "OPT_NAIVE_UTC",
+    "OPT_NON_STR_KEYS",
+    "OPT_OMIT_MICROSECONDS",
+    "OPT_PASSTHROUGH_DATACLASS",
+    "OPT_PASSTHROUGH_DATETIME",
+    "OPT_PASSTHROUGH_SUBCLASS",
+    "OPT_SERIALIZE_DATACLASS",
+    "OPT_SERIALIZE_NUMPY",
+    "OPT_SERIALIZE_UUID",
+    "OPT_SORT_KEYS",
+    "OPT_STRICT_INTEGER",
+    "OPT_UTC_Z",
+    "dumps",
+    "loads"
+]
+
+
+class Fragment():
+    pass
+class JSONDecodeError(ValueError, Exception, BaseException):
+    pass
+OPT_APPEND_NEWLINE = 1024
+OPT_INDENT_2 = 1
+OPT_NAIVE_UTC = 2
+OPT_NON_STR_KEYS = 4
+OPT_OMIT_MICROSECONDS = 8
+OPT_PASSTHROUGH_DATACLASS = 2048
+OPT_PASSTHROUGH_DATETIME = 512
+OPT_PASSTHROUGH_SUBCLASS = 256
+OPT_SERIALIZE_DATACLASS = 0
+OPT_SERIALIZE_NUMPY = 16
+OPT_SERIALIZE_UUID = 0
+OPT_SORT_KEYS = 32
+OPT_STRICT_INTEGER = 64
+OPT_UTC_Z = 128
+__version__ = '3.10.12'
+JSONEncodeError = TypeError

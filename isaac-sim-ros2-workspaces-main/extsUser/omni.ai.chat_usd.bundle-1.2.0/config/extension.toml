@@ -1,0 +1,49 @@
+[package]
+version = "1.2.0"
+authors = ["NVIDIA"]
+title = "Chat USD (Preview)"
+description = "Integration of the USD NIM & Agents into Kit"
+readme = "docs/README.md"
+repository = ""
+category = "Internal"
+keywords = ["ai", "LangChain", "core"]
+changelog = "docs/CHANGELOG.md"
+preview_image = "data/preview.png"
+icon = "data/icon.png"
+
+[dependencies]
+"omni.ai.langchain.agent.usd_code" = { version = "1.2.0" }
+"omni.ai.langchain.widget.core" = { version = "1.2.0" }
+"omni.kit.clipboard" = {}
+"omni.kit.widget.text_editor" = {}
+
+[[python.module]]
+name = "omni.ai.chat_usd.bundle"
+
+[settings.exts."omni.ai.chat_usd.bundle"]
+# Alternative to NVIDIA_API_KEY
+nvidia_api_key = "" # Put your API key here
+
+# enable/disable the chat USD agent
+register_chat_usd_agent = true
+
+# the url of your USD Search NIM server
+usd_search_host_url = "https://ai.api.nvidia.com/v1/omniverse/nvidia/usdsearch"
+
+chat_usd_multishot = true
+
+# the url of your custom chat model server
+# custom_chat_model = "http://127.0.0.1:9901/"
+
+chat_usd_developer_mode = false
+
+[settings.exts."omni.ai.langchain.widget.core"]
+window_name = "Chat USD"
+
+[documentation]
+pages = ["docs/Overview.md", "docs/CHANGELOG.md"]
+
+[[test]]
+stdoutFailPatterns.exclude = [
+    "*Warning:*",
+]

@@ -1,0 +1,3 @@
+EXTENSION_TITLE = "omni.ivyverse"
+
+EXTENSION_DESCRIPTION = ""

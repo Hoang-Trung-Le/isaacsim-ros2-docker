@@ -1,0 +1,44 @@
+Metadata-Version: 2.1
+Name: lc_agent_rag_nodes
+Version: 0.1.7
+Summary: Utility modules for LC Agent
+Home-page: https://gitlab-master.nvidia.com/omniverse/gen-ai/lc-agent
+Author: Omniverse GenAI Team
+Author-email: doyopk-org@exchange.nvidia.com
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: lc-agent
+
+# LC Agent RAG Nodes
+
+This project contains RAG nodes and related utilities for `lc_agent`.
+
+## Getting Started
+
+### Prerequisites
+
+Ensure you have the following prerequisites installed:
+- Python 3.10 or higher
+
+### Installation
+
+Clone the repository and install the dependencies:
+
+```bash
+git clone https://gitlab-master.nvidia.com/omniverse/gen-ai/lc-agent
+
+# Install lc-agent
+cd lc-ai-agent/lc_agent
+python setup.py bdist_wheel
+pip install lc_agent --find-links=dist
+
+# Install RAG nodes
+cd ../rags/rag_nodes
+python setup.py bdist_wheel
+```
+
+### Usage
+
+TODO

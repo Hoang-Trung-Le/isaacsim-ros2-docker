@@ -1,0 +1,30 @@
+lc_agent-0.1.64
+---------------
+<?xml version="1.0" encoding="UTF-8"?>
+<Error><Code>AccessDenied</Code><Message>Access Denied</Message><RequestId>WK71CGVAGQ85M3MM</RequestId><HostId>7WY0XJ6xcVA6bF4/ar/ZjmFYJMIL7YVISbtEb9cLaURkhO6fZsboZIWmswncjlpSNsiD9DcI55w=</HostId></Error>
+
+lc_agent_rag_modifiers-0.1.17
+-----------------------------
+<?xml version="1.0" encoding="UTF-8"?>
+<Error><Code>AccessDenied</Code><Message>Access Denied</Message><RequestId>WK74PEQM2S5T5KC7</RequestId><HostId>d/50oN9/kU6gMSVCSl+RfHLnQ5aCoJ+pq8HFf/sk8ZvH32C4at2ZNZqUCcEpa0SzYgDE4gQ/cy0=</HostId></Error>
+
+lc_agent_rag_nodes-0.1.7
+------------------------
+<?xml version="1.0" encoding="UTF-8"?>
+<Error><Code>AccessDenied</Code><Message>Access Denied</Message><RequestId>WK75A66A6YDGZ7NV</RequestId><HostId>Bc1BYJPUqnaWojQk0xnyMaMbb+EmREzo0OYozpxvEF/3FYY18UKm5wAuXkx7kjivNSIgPJ/IJ5M=</HostId></Error>
+
+lc_agent_retrievers-0.2.3
+-------------------------
+<?xml version="1.0" encoding="UTF-8"?>
+<Error><Code>AccessDenied</Code><Message>Access Denied</Message><RequestId>WK77PS4ZNTKACPRY</RequestId><HostId>OAH+ZXbwF0pZ8Nr8jTw6ckZbj4H9LYXqPHwIUYu//ItfCH0cIn/3Xywu9qayoaZdMdR6DZYSQOg=</HostId></Error>
+
+lc_agent_usd-0.1.23
+-------------------
+<?xml version="1.0" encoding="UTF-8"?>
+<Error><Code>AccessDenied</Code><Message>Access Denied</Message><RequestId>WK7EJQS93M89V7WS</RequestId><HostId>5IM4r+MlTgCA2IqeOKAOjF0K3f0YQCp7g++Q9K0Rb+twOYgdJEZ7gZxJlS7m06/gLzos/VxC772mCznI6rYYIA==</HostId></Error>
+
+usdcode-0.1.2
+-------------
+<?xml version="1.0" encoding="UTF-8"?>
+<Error><Code>AccessDenied</Code><Message>Access Denied</Message><RequestId>WK794197X5ZMFC6J</RequestId><HostId>vGXQV81DSxcPgEBsBh1AozUudPlCrlCo6CT7mRSdf3wdXHCIsvN3MgEFT/g6LeFEGIOD34JpkFY=</HostId></Error>
+

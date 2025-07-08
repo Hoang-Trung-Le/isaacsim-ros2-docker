@@ -1,0 +1,35 @@
+[core]
+reloadable = true
+order = 0
+
+[package]
+version = "1.0.0"
+category = "Monitoring"
+title = "OmniAlert - Industrial Alert System with Agent Integration"
+description = "Industrial alert monitoring system with real-time notifications, dashboard, and Industrial Alert Agent integration for Omniverse environments. Features automatic alert polling, camera navigation, and push notifications."
+authors = ["NVIDIA"]
+repository = ""
+keywords = ["alerts", "notifications", "monitoring", "dashboard", "industrial"]
+changelog = "docs/CHANGELOG.md"
+readme = "docs/README.md"
+preview_image = "data/preview.png"
+icon = "data/icon.png"
+
+[dependencies]
+"omni.kit.uiapp" = {}
+"omni.kit.viewport.window" = {}
+"omni.usd" = {}
+"omni.kit.window.property" = {}
+"omni.isaac.core" = {}
+"omni.kit.window.extensions" = {}
+"omni.ui" = {}
+"omni.kit.commands" = {}
+
+[[python.module]]
+name = "omni.alert"
+
+[settings.exts."omni.alert"]
+show_window_on_startup = true
+auto_refresh_interval = 10.0
+notification_timeout = 5.0
+max_alerts = 1000 

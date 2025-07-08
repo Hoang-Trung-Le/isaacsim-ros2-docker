@@ -1,0 +1,52 @@
+Metadata-Version: 2.1
+Name: lc_agent
+Version: 0.1.64
+Summary: Ai Agent Next Generation Language Network
+Home-page: https://gitlab-master.nvidia.com/omniverse/gen-ai/lc-agent
+Author: Omniverse GenAI Team
+Author-email: doyopk-org@exchange.nvidia.com
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: langchain-core==0.2.36
+Requires-Dist: aioredis==2.0.1
+Requires-Dist: langchain==0.2.15
+Requires-Dist: langchainhub==0.1.21
+Requires-Dist: libcst==1.5.0
+Requires-Dist: tiktoken==0.8.0
+Requires-Dist: toml==0.10.2
+
+# LC Agent
+
+This module contains the core components of the LC Agent, which include the `RunnableNode` and `RunnableNetwork` classes. These classes form the backbone of the LC Agent's processing and network management capabilities.
+
+## Getting Started
+
+### Prerequisites
+
+Ensure you have the following prerequisites installed:
+- Python 3.10 or higher
+
+### Installation
+
+Clone the repository and install the dependencies:
+
+```bash
+git clone https://gitlab-master.nvidia.com/omniverse/gen-ai/lc-agent
+cd lc-agent/lc_agent
+python setup.py bdist_wheel
+```
+
+If you are a developer of this module, you can install it in editable mode:
+
+```bash
+git clone https://gitlab-master.nvidia.com/omniverse/gen-ai/lc-agent
+cd lc-agent/lc_agent
+pip install -e .
+```
+
+### Usage
+
+To use the LC Ai Agent, instantiate a `RunnableNetwork` and populate it with `RunnableNode` instances based on your requirements. Refer to the documentation for detailed instructions on creating and managing networks and nodes.
+

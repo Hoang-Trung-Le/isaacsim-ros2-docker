@@ -1,0 +1,10 @@
+
+[package]
+    archivePath = "https://d4i3qtqj3r0z5.cloudfront.net/omni.ai.langchain.agent.usd_code-1.2.0.zip"
+
+    [package.publish]
+        kitVersion = "106.4.0+master.149313.164b6eef.gl"
+        date = 1733538212
+        buildNumber = "2022.2.0-beta.8+master.1487.13a43f11.gl"
+        repoName = "kit-template"
+        signed = 1

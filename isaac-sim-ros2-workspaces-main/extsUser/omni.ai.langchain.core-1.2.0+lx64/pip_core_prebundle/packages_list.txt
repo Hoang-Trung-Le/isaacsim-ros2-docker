@@ -1,0 +1,10 @@
+lc_agent-0.1.64
+lc_agent_rag_modifiers-0.1.17
+lc_agent_rag_nodes-0.1.7
+lc_agent_retrievers-0.2.3
+lc_agent_usd-0.1.23
+usdcode-0.1.2
+black-24.10.0
+mypy-1.10.1
+pillow-10.2.0
+tomlkit-0.12.0

@@ -1,0 +1,73 @@
+[core]
+reloadable = true
+order = 0
+
+[package]
+version = "2.0.1"
+name = "ivyverse"
+category = "AI Chatbot"
+title = "IvyVerse - Converse"
+description = "A Scene-Context Understanding Industrial Copilot"
+authors = ["TrungLH12"]
+repository = ""
+keywords = ["ai chatbot", "rag pipeline", "voice"]
+changelog = "docs/CHANGELOG.md"
+readme = "docs/README.md"
+preview_image = "data/preview.png"
+icon = "data/icon.png"
+
+[settings.exts."omni_ivyverse_python"]
+
+[dependencies]
+"omni.kit.uiapp" = {}
+"isaacsim.gui.components" = {}
+"isaacsim.core.api" = {}
+"omni.kit.clipboard" = {}
+"omni.kit.widget.graph" = {optional = true}
+"omni.kit.widget.text_editor" = {optional = true}
+"omni.kit.window.filepicker" = {}
+"omni.kit.menu.utils" = {}
+"omni.ui" = {}
+"omni.kit.pipapi" = {}
+
+[python.pipapi]
+# Commands passed to pip install before extension gets enabled
+requirements = [
+    "pyaudio>=0.2.11",
+    "python-dotenv>=1.0.0", 
+    "websockets>=12.0",
+    "openai>=1.0.0"
+]
+
+# Optional list of modules to import - some have different import names
+modules = [
+    "pyaudio",
+    "dotenv",
+    "websockets", 
+    "openai"
+]
+
+# Allow going to online index - required for pip install
+use_online_index = true
+
+# Don't ignore import check to ensure packages are properly installed
+ignore_import_check = false
+
+[settings.persistent.exts."omni_ivyverse_python"]
+chat_model = ""
+node_name = ""
+
+[[python.module]]
+name = "omni_ivyverse_python"
+
+[settings.exts."omni_ivyverse_python"]
+window_name = "IvyVerse - 3D Scene Copilot"
+
+[documentation]
+pages = [
+    "docs/README.md",
+    "docs/ADDING_TO_APPLICATION.md",
+    "docs/INTEGRATION_OVERVIEW.md",
+    "docs/VOICE_INTEGRATION.md",
+    "docs/CHANGELOG.md",
+]

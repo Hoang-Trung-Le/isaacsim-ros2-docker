@@ -1,0 +1,163 @@
+{
+    "cameras": [
+        {
+            "name": "Camera_01",
+            "type": "IP",
+            "url": "rtsp://192.168.1.100:554/stream1",
+            "resolution": [
+                1920,
+                1080
+            ],
+            "fps": 30,
+            "position": {
+                "x": 0,
+                "y": 15,
+                "z": 8
+            },
+            "orientation": {
+                "pitch": -30,
+                "yaw": 0,
+                "roll": 0
+            }
+        },
+        {
+            "name": "Camera_02",
+            "type": "IP",
+            "url": "rtsp://192.168.1.101:554/stream1",
+            "resolution": [
+                1920,
+                1080
+            ],
+            "fps": 30,
+            "position": {
+                "x": 20,
+                "y": 15,
+                "z": 8
+            },
+            "orientation": {
+                "pitch": -30,
+                "yaw": -90,
+                "roll": 0
+            }
+        },
+        {
+            "name": "Camera_03",
+            "type": "USB",
+            "device_id": 0,
+            "resolution": [
+                1280,
+                720
+            ],
+            "fps": 30,
+            "position": {
+                "x": 10,
+                "y": 0,
+                "z": 8
+            },
+            "orientation": {
+                "pitch": -45,
+                "yaw": 180,
+                "roll": 0
+            }
+        }
+    ],
+    "ai_agent": {
+        "api_endpoint": "https://your-api-endpoint.com/v1",
+        "api_key": "your-api-key-here",
+        "timeout": 30,
+        "retry_attempts": 3,
+        "models": {
+            "workforce_optimization": "gpt-4-turbo",
+            "safety_analysis": "claude-3-opus",
+            "performance_prediction": "gemini-pro"
+        }
+    },
+    "safety_zones": [
+        {
+            "id": "forklift_area",
+            "name": "Forklift Operation Zone",
+            "type": "vehicle_operation",
+            "bounds": {
+                "x_min": 0,
+                "x_max": 20,
+                "y_min": 10,
+                "y_max": 30,
+                "z_min": 0,
+                "z_max": 3
+            },
+            "required_ppe": [
+                "hard_hat",
+                "safety_vest",
+                "steel_toe_boots"
+            ],
+            "max_occupancy": 2,
+            "warning_threshold": 1.5
+        },
+        {
+            "id": "chemical_storage",
+            "name": "Chemical Storage Area",
+            "type": "hazardous_materials",
+            "bounds": {
+                "x_min": 50,
+                "x_max": 70,
+                "y_min": 0,
+                "y_max": 15,
+                "z_min": 0,
+                "z_max": 4
+            },
+            "required_ppe": [
+                "respirator",
+                "chemical_gloves",
+                "eye_protection",
+                "chemical_suit"
+            ],
+            "max_occupancy": 1,
+            "warning_threshold": 0.5
+        },
+        {
+            "id": "loading_dock",
+            "name": "Loading Dock",
+            "type": "loading_unloading",
+            "bounds": {
+                "x_min": 80,
+                "x_max": 100,
+                "y_min": 0,
+                "y_max": 20,
+                "z_min": 0,
+                "z_max": 5
+            },
+            "required_ppe": [
+                "hard_hat",
+                "safety_vest"
+            ],
+            "max_occupancy": 5,
+            "warning_threshold": 2.0
+        }
+    ],
+    "performance": {
+        "update_frequency": 30,
+        "max_tracked_employees": 50,
+        "history_retention_days": 30,
+        "analytics_computation_interval": 60,
+        "coordinate_smoothing": true,
+        "motion_prediction": true
+    },
+    "notifications": {
+        "safety_alerts": {
+            "enabled": true,
+            "email": [
+                "safety@company.com"
+            ],
+            "sms": [
+                "+1234567890"
+            ]
+        },
+        "performance_reports": {
+            "enabled": true,
+            "schedule": "daily",
+            "recipients": [
+                "manager@company.com"
+            ]
+        }
+    }
+}

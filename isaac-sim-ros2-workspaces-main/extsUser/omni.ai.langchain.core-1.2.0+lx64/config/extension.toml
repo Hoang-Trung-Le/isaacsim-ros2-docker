@@ -1,0 +1,29 @@
+[package]
+version = "1.2.0"
+authors = ["NVIDIA"]
+title = "LangChain Core (Preview)"
+description = "A core AI extension pulls the networked AI system transitioned to incorporate the open-source LangChain framework"
+readme = "docs/README.md"
+repository = ""
+category = "Internal"
+keywords = ["ai", "LangChain", "core"]
+changelog = "docs/CHANGELOG.md"
+preview_image = "data/preview.png"
+icon = "data/icon.png"
+
+# publish to each platform & kit version separately
+writeTarget.platform = true
+
+[[python.module]]
+name = "omni.ai.langchain.core"
+
+[[python.module]]
+path = "pip_core_prebundle"
+
+[documentation]
+pages = ["docs/Overview.md", "docs/CHANGELOG.md"]
+
+[[test]]
+stdoutFailPatterns.exclude = [
+    "*Warning:*",
+]

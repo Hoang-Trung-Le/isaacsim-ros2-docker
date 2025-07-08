@@ -1,0 +1,13 @@
+
+[package]
+    archivePath = "http://d4i3qtqj3r0z5.cloudfront.net/omni.kit.notification_manager-4459a8f91df03828.zip"
+
+    [package.publish]
+        kitVersion = "106.5.0+release.162063.eef547af.gl"
+        date = 1734045386
+        buildNumber = "106.5.0+release.162063.eef547af.gl"
+
+    [package.target]
+
+        [package.target.kitHash]
+            0 = "d02c707b"

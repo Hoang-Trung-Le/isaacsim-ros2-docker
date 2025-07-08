@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="64" height="64" rx="8" fill="#2A2A2A"/>
+  
+  <!-- Warehouse/Factory Building -->
+  <rect x="8" y="20" width="48" height="28" rx="2" fill="#4A90E2"/>
+  <rect x="10" y="22" width="44" height="24" fill="#5BA0F2"/>
+  
+  <!-- Building Details -->
+  <rect x="12" y="24" width="8" height="6" fill="#6BB0FF"/>
+  <rect x="22" y="24" width="8" height="6" fill="#6BB0FF"/>
+  <rect x="32" y="24" width="8" height="6" fill="#6BB0FF"/>
+  <rect x="42" y="24" width="8" height="6" fill="#6BB0FF"/>
+  
+  <!-- Employee Icons -->
+  <circle cx="18" cy="38" r="3" fill="#FFD700"/>
+  <rect x="16" y="41" width="4" height="5" rx="1" fill="#FFD700"/>
+  
+  <circle cx="32" cy="38" r="3" fill="#FFD700"/>
+  <rect x="30" y="41" width="4" height="5" rx="1" fill="#FFD700"/>
+  
+  <circle cx="46" cy="38" r="3" fill="#FFD700"/>
+  <rect x="44" y="41" width="4" height="5" rx="1" fill="#FFD700"/>
+  
+  <!-- Monitoring/Digital Elements -->
+  <circle cx="12" cy="12" r="3" fill="#00FF7F"/>
+  <circle cx="20" cy="12" r="2" fill="#00FF7F" opacity="0.7"/>
+  <circle cx="28" cy="12" r="1.5" fill="#00FF7F" opacity="0.5"/>
+  
+  <!-- Connection Lines -->
+  <line x1="15" y1="12" x2="18" y2="35" stroke="#00FF7F" stroke-width="1" opacity="0.6"/>
+  <line x1="22" y1="12" x2="32" y2="35" stroke="#00FF7F" stroke-width="1" opacity="0.6"/>
+  <line x1="28" y1="12" x2="46" y2="35" stroke="#00FF7F" stroke-width="1" opacity="0.6"/>
+</svg>

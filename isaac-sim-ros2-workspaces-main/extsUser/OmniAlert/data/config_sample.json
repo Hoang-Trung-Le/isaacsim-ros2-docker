@@ -1,0 +1,48 @@
+{
+    "api_settings": {
+        "base_url": "http://localhost:8000",
+        "websocket_url": "ws://localhost:8000/ws",
+        "api_key": "",
+        "timeout": 30.0,
+        "retry_attempts": 3,
+        "polling_interval": 10.0
+    },
+    "notification_settings": {
+        "enable_sound": true,
+        "notification_timeout": 5.0,
+        "max_notifications": 5,
+        "auto_dismiss_resolved": true,
+        "severity_filters": {
+            "critical": true,
+            "high": true,
+            "medium": true,
+            "low": false,
+            "info": false
+        }
+    },
+    "camera_settings": {
+        "animation_duration": 2.0,
+        "smooth_transitions": true,
+        "auto_frame_objects": true,
+        "camera_distance": 5.0
+    },
+    "dashboard_settings": {
+        "auto_refresh_interval": 30.0,
+        "max_alerts_display": 100,
+        "default_sort": "timestamp",
+        "show_resolved": false,
+        "export_format": "json"
+    },
+    "alert_management": {
+        "max_alerts_stored": 1000,
+        "auto_cleanup_age_hours": 24,
+        "acknowledge_on_view": false,
+        "auto_resolve_dismissed": false
+    },
+    "ui_theme": {
+        "industrial_theme": true,
+        "dark_mode": true,
+        "compact_view": false,
+        "show_statistics": true
+    }
+}

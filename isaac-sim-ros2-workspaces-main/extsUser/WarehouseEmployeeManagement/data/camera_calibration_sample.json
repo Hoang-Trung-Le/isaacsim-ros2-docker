@@ -1,0 +1,167 @@
+{
+    "Camera_01": {
+        "transformation_matrix": [
+            [
+                0.0125,
+                0.0008,
+                -12.5
+            ],
+            [
+                -0.0003,
+                0.0139,
+                -10.8
+            ],
+            [
+                0,
+                0,
+                1
+            ]
+        ],
+        "calibration_points": [
+            {
+                "id": 0,
+                "camera_x": 100,
+                "camera_y": 150,
+                "world_x": 0.0,
+                "world_y": 0.0,
+                "world_z": 0.0
+            },
+            {
+                "id": 1,
+                "camera_x": 1820,
+                "camera_y": 150,
+                "world_x": 20.0,
+                "world_y": 0.0,
+                "world_z": 0.0
+            },
+            {
+                "id": 2,
+                "camera_x": 100,
+                "camera_y": 930,
+                "world_x": 0.0,
+                "world_y": 15.0,
+                "world_z": 0.0
+            },
+            {
+                "id": 3,
+                "camera_x": 1820,
+                "camera_y": 930,
+                "world_x": 20.0,
+                "world_y": 15.0,
+                "world_z": 0.0
+            }
+        ],
+        "timestamp": 1703875200.0,
+        "accuracy_score": 92.5
+    },
+    "Camera_02": {
+        "transformation_matrix": [
+            [
+                0.0139,
+                -0.0005,
+                -15.2
+            ],
+            [
+                0.0002,
+                0.0125,
+                -12.1
+            ],
+            [
+                0,
+                0,
+                1
+            ]
+        ],
+        "calibration_points": [
+            {
+                "id": 0,
+                "camera_x": 200,
+                "camera_y": 100,
+                "world_x": 20.0,
+                "world_y": 0.0,
+                "world_z": 0.0
+            },
+            {
+                "id": 1,
+                "camera_x": 1720,
+                "camera_y": 100,
+                "world_x": 40.0,
+                "world_y": 0.0,
+                "world_z": 0.0
+            },
+            {
+                "id": 2,
+                "camera_x": 200,
+                "camera_y": 980,
+                "world_x": 20.0,
+                "world_y": 15.0,
+                "world_z": 0.0
+            },
+            {
+                "id": 3,
+                "camera_x": 1720,
+                "camera_y": 980,
+                "world_x": 40.0,
+                "world_y": 15.0,
+                "world_z": 0.0
+            }
+        ],
+        "timestamp": 1703875260.0,
+        "accuracy_score": 88.7
+    },
+    "Camera_03": {
+        "transformation_matrix": [
+            [
+                0.0156,
+                0.0012,
+                -8.3
+            ],
+            [
+                -0.0008,
+                0.0167,
+                -6.0
+            ],
+            [
+                0,
+                0,
+                1
+            ]
+        ],
+        "calibration_points": [
+            {
+                "id": 0,
+                "camera_x": 80,
+                "camera_y": 120,
+                "world_x": 5.0,
+                "world_y": 0.0,
+                "world_z": 0.0
+            },
+            {
+                "id": 1,
+                "camera_x": 1200,
+                "camera_y": 120,
+                "world_x": 15.0,
+                "world_y": 0.0,
+                "world_z": 0.0
+            },
+            {
+                "id": 2,
+                "camera_x": 80,
+                "camera_y": 600,
+                "world_x": 5.0,
+                "world_y": 10.0,
+                "world_z": 0.0
+            },
+            {
+                "id": 3,
+                "camera_x": 1200,
+                "camera_y": 600,
+                "world_x": 15.0,
+                "world_y": 10.0,
+                "world_z": 0.0
+            }
+        ],
+        "timestamp": 1703875320.0,
+        "accuracy_score": 91.2
+    }
+}

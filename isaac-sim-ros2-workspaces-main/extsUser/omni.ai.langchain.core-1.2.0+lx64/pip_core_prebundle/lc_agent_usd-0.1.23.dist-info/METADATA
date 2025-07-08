@@ -1,0 +1,13 @@
+Metadata-Version: 2.1
+Name: lc_agent_usd
+Version: 0.1.23
+Summary: USD Code Agent
+Home-page: https://gitlab-master.nvidia.com/omniverse/gen-ai/lc-agent
+Author: Omniverse GenAI Team
+Author-email: doyopk-org@exchange.nvidia.com
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: lc_agent
+Requires-Dist: lc_agent_rag_modifiers

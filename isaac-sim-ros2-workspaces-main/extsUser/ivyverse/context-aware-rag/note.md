@@ -1,0 +1,9 @@
+export NVIDIA_API_KEY="YOUR_NVIDIA_API_KEY"
+echo "${NVIDIA_API_KEY}" | docker login nvcr.io -u '$oauthtoken' --password-stdin
+
+NGC_API_KEY=YOUR_NGC_API_KEY
+NIM_NGC_API_KEY=YOUR_NIM_NGC_API_KEY
+
+
+export NVIDIA_API_KEY=YOUR_NVIDIA_API_KEY
+export OPENAI_API_KEY=YOUR_OPENAI_API_KEY

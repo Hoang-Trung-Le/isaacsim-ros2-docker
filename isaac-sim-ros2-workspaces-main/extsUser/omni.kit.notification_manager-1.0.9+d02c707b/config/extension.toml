@@ -1,0 +1,63 @@
+[package]
+# Semantic Versioning is used: https://semver.org/
+version = "1.0.9"
+
+category = "UI"
+support_level = "Core"
+feature = true
+
+# Lists people or organizations that are considered the "authors" of the package.
+authors = ["NVIDIA"]
+
+# The title and description fields are primarly for displaying extension info in UI
+title = "Notification Manager"
+description="Extension that provides interface to post notifications."
+
+# URL of the extension source repository.
+repository = ""
+
+# Preview image. Folder named "data" automatically goes in git lfs (see .gitattributes file).
+preview_image = "data/preview.png"
+
+# Keywords for the extension
+keywords = ["kit", "notification"]
+
+# Location of change log file in target (final) folder of extension, relative to the root.
+# More info on writing changelog: https://keepachangelog.com/en/1.0.0/
+changelog="docs/CHANGELOG.md"
+
+# Path (relative to the root) or content of readme markdown file for UI.
+readme  = "docs/README.md"
+
+[dependencies]
+"omni.ui" = {}
+
+# Main python module this extension provides, it will be publicly available as "import omni.example.hello".
+[[python.module]]
+name = "omni.kit.notification_manager"
+
+[settings.exts."omni.kit.notification_manager"]
+disable_notifications = false
+loopIdleTimeInSeconds = 0.5
+
+[documentation]
+pages = [
+    "docs/Overview.md",
+    "docs/CHANGELOG.md",
+    "docs/USAGE.md",
+    "docs/SETTINGS.md",
+]
+
+[[test]]
+args = [
+    "--/app/asyncRendering=false",
+    "--/app/window/dpiScaleOverride=1.0",
+    "--/app/window/scaleToMonitor=false",
+    "--no-window"
+]
+
+dependencies = [
+    "omni.kit.commands",
+    "omni.kit.renderer.capture",
+    "omni.kit.mainwindow"
+]

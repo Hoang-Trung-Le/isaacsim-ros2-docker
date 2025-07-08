@@ -1,0 +1,170 @@
+{
+    "templates": {
+        "equipment_failure": {
+            "title": "Equipment Failure Detected",
+            "severity": "critical",
+            "category": "equipment",
+            "message_template": "Equipment {equipment_id} has failed. Immediate attention required.",
+            "actions": [
+                {
+                    "id": "inspect",
+                    "label": "Inspect Equipment",
+                    "icon": "🔍",
+                    "callback": "navigate_to_location"
+                },
+                {
+                    "id": "maintenance",
+                    "label": "Schedule Maintenance",
+                    "icon": "🔧",
+                    "callback": "schedule_maintenance"
+                },
+                {
+                    "id": "shutdown",
+                    "label": "Emergency Shutdown",
+                    "icon": "⏹️",
+                    "callback": "emergency_shutdown"
+                }
+            ]
+        },
+        "safety_violation": {
+            "title": "Safety Violation Detected",
+            "severity": "high",
+            "category": "safety",
+            "message_template": "Safety violation detected in {area}. Type: {violation_type}",
+            "actions": [
+                {
+                    "id": "review",
+                    "label": "Review Incident",
+                    "icon": "📋",
+                    "callback": "review_safety_incident"
+                },
+                {
+                    "id": "notify",
+                    "label": "Notify Supervisor",
+                    "icon": "📢",
+                    "callback": "notify_supervisor"
+                }
+            ]
+        },
+        "process_anomaly": {
+            "title": "Process Anomaly Detected",
+            "severity": "medium",
+            "category": "process",
+            "message_template": "Process {process_name} showing anomalous behavior. Parameter: {parameter}",
+            "actions": [
+                {
+                    "id": "analyze",
+                    "label": "Analyze Data",
+                    "icon": "📊",
+                    "callback": "analyze_process_data"
+                },
+                {
+                    "id": "adjust",
+                    "label": "Adjust Parameters",
+                    "icon": "⚙️",
+                    "callback": "adjust_process_parameters"
+                }
+            ]
+        },
+        "environmental_warning": {
+            "title": "Environmental Condition Warning",
+            "severity": "medium",
+            "category": "environmental",
+            "message_template": "Environmental condition out of range: {condition} = {value} {unit}",
+            "actions": [
+                {
+                    "id": "monitor",
+                    "label": "Monitor Conditions",
+                    "icon": "🌡️",
+                    "callback": "monitor_environment"
+                },
+                {
+                    "id": "ventilation",
+                    "label": "Adjust Ventilation",
+                    "icon": "💨",
+                    "callback": "adjust_ventilation"
+                }
+            ]
+        },
+        "employee_safety": {
+            "title": "Employee Safety Alert",
+            "severity": "high",
+            "category": "employee",
+            "message_template": "Employee safety concern detected for {employee_id} in {zone}",
+            "actions": [
+                {
+                    "id": "locate",
+                    "label": "Locate Employee",
+                    "icon": "📍",
+                    "callback": "locate_employee"
+                },
+                {
+                    "id": "emergency",
+                    "label": "Emergency Response",
+                    "icon": "🚨",
+                    "callback": "emergency_response"
+                }
+            ]
+        },
+        "inventory_alert": {
+            "title": "Inventory Alert",
+            "severity": "low",
+            "category": "inventory",
+            "message_template": "Inventory level alert for {item}: {current_level}/{threshold}",
+            "actions": [
+                {
+                    "id": "reorder",
+                    "label": "Reorder Item",
+                    "icon": "📦",
+                    "callback": "reorder_item"
+                },
+                {
+                    "id": "check",
+                    "label": "Manual Check",
+                    "icon": "✓",
+                    "callback": "manual_inventory_check"
+                }
+            ]
+        },
+        "quality_issue": {
+            "title": "Quality Control Issue",
+            "severity": "medium",
+            "category": "quality",
+            "message_template": "Quality issue detected in {product_batch}. Defect rate: {defect_rate}%",
+            "actions": [
+                {
+                    "id": "inspect",
+                    "label": "Inspect Batch",
+                    "icon": "🔍",
+                    "callback": "inspect_batch"
+                },
+                {
+                    "id": "quarantine",
+                    "label": "Quarantine Batch",
+                    "icon": "🚫",
+                    "callback": "quarantine_batch"
+                }
+            ]
+        },
+        "security_breach": {
+            "title": "Security Breach Alert",
+            "severity": "critical",
+            "category": "security",
+            "message_template": "Security breach detected: {breach_type} in {location}",
+            "actions": [
+                {
+                    "id": "lockdown",
+                    "label": "Initiate Lockdown",
+                    "icon": "🔒",
+                    "callback": "initiate_lockdown"
+                },
+                {
+                    "id": "security",
+                    "label": "Alert Security",
+                    "icon": "👮",
+                    "callback": "alert_security"
+                }
+            ]
+        }
+    }
+}
