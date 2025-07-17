@@ -32,12 +32,13 @@ class IvyverseWindow(ui.Window):
         self.voice_interface = VoiceInterface()
         self.providers = ["NVIDIA NIM", "OpenAI GPT-4o"]
         self.default_provider = 1
-        # self._style_sheet = StyleSheet() if STYLESHEET_LOADED else None
 
         # Voice interface state
         self._voice_connected = False
         self._voice_recording = False
         self._voice_response_mode = False  # Boolean flag for voice response
+        self._conversation_mode = False
+        self._conversation_active = False
         self._input_filepicker = None
 
         # Initialize voice interface callbacks
@@ -55,10 +56,10 @@ class IvyverseWindow(ui.Window):
                     ui.Image(name="ivyverse-logo")
                 with ui.HStack(
                     height=30,
-                    style={
-                        "padding": 0,
-                        "margin": 5,
-                    },
+                    # style={
+                    #     "padding": 0,
+                    #     "margin": 5,
+                    # },
                 ):
                     with ui.VStack():
                         ui.Label(
@@ -72,19 +73,27 @@ class IvyverseWindow(ui.Window):
                     ui.Spacer()
 
                 # Main content area
-                with ui.HStack(style={"padding": 0}, height=ui.Fraction(1)):
+                with ui.HStack(
+                    # style={"padding": 0},
+                    height=ui.Fraction(1)
+                ):
                     # Left sidebar for configuration
                     with ui.VStack(
                         width=300,
-                        style={
-                            "padding": 10,
-                        },
+                        # style={
+                        #     "padding": 10,
+                        # },
                     ):
                         # Configuration Section
                         with ui.CollapsableFrame(
-                            "Configuration", height=0, style={"margin": 5}
+                            "Configuration",
+                            height=0,
+                            # style={"margin": 5}
                         ):
-                            with ui.VStack(spacing=8, style={"padding": 8}):
+                            with ui.VStack(
+                                spacing=8,
+                                # style={"padding": 8}
+                            ):
                                 # LLM Selection
                                 ui.Label("LLM Provider:")
                                 self._llm_combo = ui.ComboBox(
@@ -110,14 +119,30 @@ class IvyverseWindow(ui.Window):
                                         clicked_fn=self._save_api_key,
                                     )
 
+                                # RAG Settings
+                                ui.Label("RAG Settings:")
+                                with ui.HStack(height=30):
+                                    self._rag_enabled_checkbox = ui.CheckBox(
+                                        model=ui.SimpleBoolModel(True)
+                                    )
+                                    ui.Label("Enable RAG for Voice")
+
+                                # Apply RAG settings
+                                self._apply_rag_button = ui.Button(
+                                    "Apply RAG Settings",
+                                    clicked_fn=self._apply_rag_settings,
+                                )
+
                         # Scene Information
                         with ui.CollapsableFrame(
                             "Scene Information",
                             collapsed=False,
                             height=0,
-                            style={"margin": 5},
+                            # style={"margin": 5},
                         ):
-                            with ui.VStack(spacing=8, style={"padding": 8}):
+                            with ui.VStack(
+                                spacing=8,  # style={"padding": 8}
+                            ):
                                 self._scene_info_label = ui.Label(
                                     "No scene loaded",
                                     word_wrap=True,
@@ -130,9 +155,12 @@ class IvyverseWindow(ui.Window):
 
                         # Export Options
                         with ui.CollapsableFrame(
-                            "Export Options", height=0, style={"margin": 5}
+                            "Export Options",
+                            height=0,  # style={"margin": 5}
                         ):
-                            with ui.VStack(spacing=8, style={"padding": 8}):
+                            with ui.VStack(
+                                spacing=8,  # style={"padding": 8}
+                            ):
                                 ui.Button(
                                     "Export Chat History",
                                     clicked_fn=self._export_chat,
@@ -166,11 +194,11 @@ class IvyverseWindow(ui.Window):
                         # Input area - bottom fixed area
                         with ui.HStack(
                             height=60,
-                            style={
-                                "background_color": cl.color.black,
-                                "padding": 5,
-                                # "debug_color": cl.color("#00B4D811"),
-                            },
+                            # style={
+                            #     "background_color": cl.color.black,
+                            #     "padding": 5,
+                            #     # "debug_color": cl.color("#00B4D811"),
+                            # },
                         ):
                             # Chat input field with Enter key handling
                             self._chat_input = ui.StringField(
@@ -187,7 +215,7 @@ class IvyverseWindow(ui.Window):
 
                             # Send button (existing)
                             self._send_button = ui.Button(
-                                "Send",
+                                name="send",
                                 width=80,
                                 height=40,
                                 clicked_fn=self._send_message,
@@ -195,9 +223,18 @@ class IvyverseWindow(ui.Window):
                             )
                             self._voice_button = ui.Button(
                                 name="voice",
+                                tooltip="Voice Input",
                                 width=40,
                                 height=40,
                                 clicked_fn=self._toggle_voice_input,
+                                style={"background_color": cl.color("#00B4D8")},
+                            )
+                            self._conversation_button = ui.Button(
+                                name="conversation",
+                                tooltip="Conversation Mode",
+                                width=40,
+                                height=40,
+                                clicked_fn=self._toggle_conversation,
                                 style={"background_color": cl.color("#00B4D8")},
                             )
                             self._upload_button = ui.Button(
@@ -224,6 +261,10 @@ class IvyverseWindow(ui.Window):
             on_error=self._on_voice_error,
             on_audio_playback_start=self._on_audio_playback_start,
             on_audio_playback_end=self._on_audio_playback_end,
+            on_text_response_delta=self._on_text_response_delta,
+            on_text_response_done=self._on_text_response_done,
+            on_speech_started=self._on_speech_started,
+            on_speech_stopped=self._on_speech_stopped,
         )
 
     def _initialize_voice_connection(self):
@@ -286,6 +327,28 @@ class IvyverseWindow(ui.Window):
         print(f"API key saved for {current_provider}")
 
         # Voice connection is already initialized after UI build, so no need to reconnect here
+
+    def _apply_rag_settings(self):
+        """Apply RAG settings for voice interactions"""
+        rag_enabled = self._rag_enabled_checkbox.model.get_value_as_bool()
+
+        # Update voice interface RAG setting
+        if self.voice_interface:
+            self.voice_interface.enable_rag(rag_enabled)
+
+        # Update chat interface RAG setting
+        if self.llm_manager:
+            self.llm_manager.use_rag = rag_enabled
+
+        # Show status message
+        if self.chat_interface:
+            timestamp = datetime.datetime.now().strftime("%H:%M %p")
+            status_msg = f"RAG {'enabled' if rag_enabled else 'disabled'} for voice and chat interactions"
+            self.chat_interface._add_assistant_message(status_msg, timestamp, "System")
+
+        carb.log_info(
+            f"RAG settings applied - RAG: {'enabled' if rag_enabled else 'disabled'}"
+        )
 
     def _analyze_scene(self):
         """Analyze current USD scene"""
@@ -433,10 +496,17 @@ class IvyverseWindow(ui.Window):
     # Voice interface callback methods
     def _on_transcript_update(self, transcript: str):
         """Handle transcript updates from voice interface"""
-        if self._chat_input and transcript:
-            # Update the input field with the transcription
-            self._chat_input.model.set_value(transcript)
-            carb.log_info(f"Transcript updated: {transcript}")
+        if self._conversation_mode:
+            # In conversation mode, add transcript directly to chat
+            if self.chat_interface and transcript:
+                timestamp = datetime.datetime.now().strftime("%H:%M %p")
+                self.chat_interface._add_user_message(transcript, timestamp)
+        else:
+            # In voice input mode, update input field
+            if self._chat_input and transcript:
+                self._chat_input.model.set_value(transcript)
+
+        carb.log_info(f"Transcript updated: {transcript}")
 
     def _on_voice_status_update(self, message: str, has_activity: bool):
         """Handle status updates from voice interface"""
@@ -467,6 +537,117 @@ class IvyverseWindow(ui.Window):
         # Reset voice response mode after playback
         self._voice_response_mode = False
 
+    def _on_text_response_delta(self, text_delta: str):
+        """Handle text response chunks from voice interface"""
+        carb.log_info(f"Text response delta: {text_delta}")
+
+    def _on_text_response_done(self, full_text: str):
+        """Handle complete text response from voice interface"""
+        carb.log_info(f"Complete text response: {full_text}")
+        # Add the text response to chat interface
+        if self.chat_interface:
+            timestamp = datetime.datetime.now().strftime("%H:%M %p")
+            response_type = (
+                "Conversation" if self._conversation_mode else "Voice Response"
+            )
+            self.chat_interface._add_assistant_message(
+                full_text, timestamp, response_type
+            )
+
+    def _toggle_conversation(self):
+        """Toggle conversation mode"""
+        if not self._voice_connected:
+            if self.chat_interface:
+                timestamp = datetime.datetime.now().strftime("%H:%M %p")
+                self.chat_interface._add_assistant_message(
+                    "Voice feature not connected. Please save OpenAI API key first.",
+                    timestamp,
+                    "Voice System",
+                )
+        if self._conversation_mode:
+            asyncio.ensure_future(self._disable_conversation_mode())
+        else:
+            asyncio.ensure_future(self._enable_conversation_mode())
+
+    async def _enable_conversation_mode(self):
+        """Enable conversation mode"""
+        try:
+            success = await self.voice_interface.enable_conversation_mode()
+            if success:
+                self._conversation_mode = True
+                self._conversation_button.style = {
+                    "background_color": cl.color("#4CAF50")
+                }  # Green
+
+                # Auto-start conversation
+                await self._start_conversation()
+
+                # Add system message
+                if self.chat_interface:
+                    timestamp = datetime.datetime.now().strftime("%H:%M %p")
+                    self.chat_interface._add_assistant_message(
+                        "Conversation mode enabled. Start speaking naturally!",
+                        timestamp,
+                        "System",
+                    )
+
+        except Exception as e:
+            carb.log_error(f"Failed to enable conversation mode: {e}")
+
+    async def _disable_conversation_mode(self):
+        """Disable conversation mode"""
+        try:
+            await self.voice_interface.disable_conversation_mode()
+            self._conversation_mode = False
+            self._conversation_active = False
+            self._conversation_button.style = {
+                "background_color": cl.color("#00B4D8")
+            }  # Blue
+
+            # Add system message
+            if self.chat_interface:
+                timestamp = datetime.datetime.now().strftime("%H:%M %p")
+                self.chat_interface._add_assistant_message(
+                    "Conversation mode disabled.",
+                    timestamp,
+                    "System",
+                )
+
+        except Exception as e:
+            carb.log_error(f"Failed to disable conversation mode: {e}")
+
+    async def _start_conversation(self):
+        """Start active conversation"""
+        if self._conversation_mode and not self._conversation_active:
+            success = await self.voice_interface.start_conversation()
+            if success:
+                self._conversation_active = True
+                carb.log_info("Conversation started")
+
+    async def _stop_conversation(self):
+        """Stop active conversation"""
+        if self._conversation_active:
+            await self.voice_interface.stop_conversation()
+            self._conversation_active = False
+            carb.log_info("Conversation stopped")
+
+    # CONVERSATION MODE CALLBACKS:
+    def _on_speech_started(self):
+        """Handle speech detection started"""
+        carb.log_info("User started speaking")
+        # Could add visual feedback here (e.g., highlight conversation button)
+        self._conversation_button.style = {
+            "background_color": cl.color("#FFD700")
+        }  # Gold
+
+    def _on_speech_stopped(self):
+        """Handle speech detection stopped"""
+        carb.log_info("User stopped speaking - AI will respond")
+        # Reset button color
+        self._conversation_button.style = {
+            "background_color": cl.color("#4CAF50")
+        }  # Green
+
     def _send_message(self):
         """Send message to LLM and optionally get speech response"""
         if self.chat_interface:
@@ -480,7 +661,7 @@ class IvyverseWindow(ui.Window):
                 and message_text.strip()
             ):
                 asyncio.ensure_future(
-                    self.voice_interface.send_text_with_speech_response(message_text)
+                    self.voice_interface.send_dictation_response(message_text)
                 )
             else:
                 # Send regular chat message
