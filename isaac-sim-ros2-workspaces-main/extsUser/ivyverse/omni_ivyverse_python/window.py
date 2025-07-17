@@ -342,7 +342,7 @@ class IvyverseWindow(ui.Window):
         print(f"Scene analysis exported to: {filename}")
 
     # Add these methods to the IvyverseWindow class
-    def _on_key_pressed(self, key, modifier):
+    def _on_key_pressed(self, key, modifier, consuming):
         """Handle keyboard events in the chat input field"""
         # Check if Enter key (key 13) is pressed without Shift
         if key == 51 and not (modifier & 1):  # 51 is Enter key

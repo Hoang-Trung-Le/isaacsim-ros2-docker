@@ -78,12 +78,12 @@ class ChatInterface:
                         "border_radius": 8,  # Rounded corners
                         "border_color": 0xFF4F4F4F,  # Subtle border color
                         "border_width": 0,  # No border by default
-                        "debug_color": cl.color.red,
+                        # "debug_color": cl.color.red,
                     }
                 )
 
                 # Second layer: actual content
-                with ui.VStack(style={"padding": 10, "debug_color": cl.color.blue}):  # Add padding to the content
+                with ui.VStack(style={"padding": 10}):  # Add padding to the content
                     with ui.HStack(height=0):  # Message layout
                         # User icon frame - on the left (opposite of assistant)
                         with ui.VStack(width=40):

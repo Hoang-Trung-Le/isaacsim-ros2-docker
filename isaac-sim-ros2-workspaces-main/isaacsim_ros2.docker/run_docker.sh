@@ -1,5 +1,5 @@
 #!/bin/bash
-# xhost +
+xhost +
 
 # Initialize an empty string for directory arguments
 DIR_ARGS=""
@@ -10,7 +10,7 @@ for DIR_PATH in "$@"; do
     DIR_ARGS="$DIR_ARGS -v $DIR_PATH:/ros2_ws/src/$(basename $DIR_PATH)"
 done
 
-docker run --name nis-ros2-bridge-container -it --gpus all -e "ACCEPT_EULA=Y" --rm --network=host --ipc=host \
+docker run --name nis-ros2-bridge-container --runtime=nvidia --gpus all -it -e "ACCEPT_EULA=Y" --rm --network=host --ipc=host \
 -v $HOME/.Xauthority:/root/.Xauthority \
 -e DISPLAY \
 -e "PRIVACY_CONSENT=Y" \
@@ -23,7 +23,7 @@ docker run --name nis-ros2-bridge-container -it --gpus all -e "ACCEPT_EULA=Y" --
 -v ~/docker/isaac-sim/data:/root/.local/share/ov/data:rw \
 -v ~/docker/isaac-sim/documents:/root/Documents:rw \
 -v ~/docker/isaac-sim/exts:/isaac-sim/extsUser:rw \
--v /home/ubuntu:/home/ubuntu:rw \
--v /home/ubuntu/isaacsim-ros2-docker/isaac-sim-ros2-workspaces-main/assets:/isaac-sim/assets:rw \
+-v /home/hung/Work/trunglh12/isaacsim-ros2-docker/isaac-sim-ros2-workspaces-main/assets:/isaac-sim/assets:rw \
+-v /home/hung/Work/trunglh12/isaacsim-ros2-docker/isaac-sim-ros2-workspaces-main/extsUser:/extsUser:rw \
 $DIR_ARGS \
 nis-ros2-bridge:latest
