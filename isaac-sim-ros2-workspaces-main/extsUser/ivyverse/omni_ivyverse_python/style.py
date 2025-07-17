@@ -98,7 +98,7 @@ ivyverse_style = {
         "background_color": cl.surface_color,
         "border_color": cl.border_color,
     },
-    "Button::chat-send": {
+    "Button::send": {
         "background_color": cl.primary_color,
         # "border_radius": 20,
     },
@@ -115,6 +115,10 @@ ivyverse_style = {
     },
     "Button.Image::audio-wave": {
         "image_url": f"{icon_path}/audio-wave.svg",
+        "color": cl.color.white,
+    },
+    "Button.Image::conversation": {
+        "image_url": f"{icon_path}/conversation-bubble-chat.svg",
         "color": cl.color.white,
     },
     "Button.Image::upload": {

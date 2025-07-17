@@ -54,6 +54,9 @@ class AudioHandler:
         elif self.audio_backend == "sounddevice":
             self._init_sounddevice()
 
+        # Add real-time streaming callback
+        self.realtime_callback = None
+
     def _init_no_audio(self):
         """Initialize with no audio support"""
         self.p = None
@@ -162,6 +165,10 @@ class AudioHandler:
         self.on_audio_chunk = on_audio_chunk
         self.on_recording_complete = on_recording_complete
 
+    def set_realtime_callback(self, callback):
+        """Set callback for real-time audio streaming"""
+        self.realtime_callback = callback
+
     def start_recording(self, input_device_index: int = None) -> bool:
         """Start audio recording"""
         if self.is_recording:
@@ -174,27 +181,6 @@ class AudioHandler:
             return self._start_recording_sounddevice(input_device_index)
 
         return False
-
-        # try:
-        #     carb.log_info(f"Starting audio recording with device index: {input_device_index}")
-        #     self.stream = self.p.open(
-        #         format=self.format,
-        #         channels=self.channels,
-        #         rate=self.rate,
-        #         input=True,
-        #         frames_per_buffer=self.chunk_size,
-        #         input_device_index=input_device_index,
-        #     )
-
-        #     self.is_recording = True
-        #     self.audio_buffer = b""
-        #     carb.log_info("Audio recording started")
-        #     return True
-
-        # except Exception as e:
-        #     carb.log_error(f"Failed to start audio recording: {e}")
-        #     self.is_recording = False
-        #     return False
 
     def _start_recording_pyaudio(self, input_device_index: int = None) -> bool:
         """Start recording with PyAudio"""
@@ -260,6 +246,10 @@ class AudioHandler:
                 if self.on_audio_chunk:
                     self.on_audio_chunk(data)
 
+                # NEW: Send to realtime streaming for conversation mode
+                if self.realtime_callback:
+                    self.realtime_callback(data)
+
             except Exception as e:
                 carb.log_error(f"Error in recording worker (PyAudio): {e}")
                 break
@@ -307,7 +297,7 @@ class AudioHandler:
 
         # Wait for recording thread to finish
         if self.recording_thread:
-            self.recording_thread.join(timeout=2.0)
+            self.recording_thread.join(timeout=0.1)
 
         # Close input stream (PyAudio only)
         if self.input_stream and self.audio_backend == "pyaudio":
