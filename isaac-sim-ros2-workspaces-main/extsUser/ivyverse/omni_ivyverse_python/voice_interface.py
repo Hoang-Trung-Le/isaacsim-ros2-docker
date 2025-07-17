@@ -28,6 +28,7 @@ class VoiceInterface:
         self.is_connected = False
         self.current_transcript = ""
         self.current_text_response = ""
+        self.main_loop = None  # Store reference to main event loop
 
         # Callbacks for UI updates
         self.on_transcript_update = None
@@ -113,7 +114,7 @@ class VoiceInterface:
         on_audio_playback_start: Callable[[], None] = None,
         on_audio_playback_end: Callable[[], None] = None,
         on_text_response_delta: Callable[[str], None] = None,
-        on_text_response_done: Callable[[], None] = None,
+        on_text_response_done: Callable[[str], None] = None,
         on_speech_started: Callable[[], None] = None,
         on_speech_stopped: Callable[[], None] = None,
     ):
@@ -134,6 +135,9 @@ class VoiceInterface:
             await self.disconnect()
 
         try:
+            # Capture the main event loop for thread-safe async calls
+            self.main_loop = asyncio.get_event_loop()
+
             self.api_client = RealtimeAPIClient(api_key, voice)
 
             # Set up API client callbacks
@@ -174,6 +178,7 @@ class VoiceInterface:
             await self.api_client.disconnect()
             self.api_client = None
         self.is_connected = False
+        self.main_loop = None  # Clear the event loop reference
         carb.log_info("Voice interface disconnected")
 
     def start_recording(self):
@@ -301,7 +306,15 @@ class VoiceInterface:
     def _stream_audio_chunk(self, audio_chunk: bytes):
         """Handle real-time audio chunks for conversation mode"""
         if self.conversation_streaming and self.api_client:
-            asyncio.ensure_future(self.api_client.stream_audio_chunk(audio_chunk))
+            # Use asyncio.run_coroutine_threadsafe to run the async call in the main event loop
+            if self.main_loop:
+                asyncio.run_coroutine_threadsafe(
+                    self.api_client.stream_audio_chunk(audio_chunk), self.main_loop
+                )
+            else:
+                carb.log_warn(
+                    "Main event loop not available for stream_audio_chunk. Audio chunk will be dropped."
+                )
 
     # NEW CALLBACK METHODS FOR CONVERSATION MODE:
     def _on_speech_started(self):
@@ -468,11 +481,13 @@ class VoiceInterface:
         if self.on_text_response_delta:
             self.on_text_response_delta(text_delta)
 
-    def _on_text_response_done(self, text_done: str):
+    def _on_text_response_done(self, text_content: str):
         """Handle completion of text response"""
-        carb.log_info(f"Text response completed: {text_done}")
-        if self.on_text_response_done:
-            self.on_text_response_done(text_done)
+        carb.log_info(f"Text response completed: {text_content}")
+        if self.on_text_response_done and text_content:
+            # Pass the actual text content to the UI callback
+            self.on_text_response_done(text_content)
+        # Clear accumulated response since we now get the complete text
         self.current_text_response = ""
 
     def _on_api_error(self, error_message: str):

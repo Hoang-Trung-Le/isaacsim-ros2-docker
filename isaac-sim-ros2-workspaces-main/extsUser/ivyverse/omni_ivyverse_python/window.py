@@ -110,8 +110,10 @@ class IvyverseWindow(ui.Window):
                                 ui.Label("API Key:")
                                 with ui.HStack(height=30):
                                     self._api_key_field = ui.StringField(
+                                        name="api-key-field",
                                         password_mode=True,
-                                        style={"background_color": cl.color.black},
+                                        style_type_name_override="InputField",
+                                        # style={"background_color": cl.color.black},
                                     )
                                     self._save_button = ui.Button(
                                         "Save",
@@ -202,9 +204,10 @@ class IvyverseWindow(ui.Window):
                         ):
                             # Chat input field with Enter key handling
                             self._chat_input = ui.StringField(
+                                name="chat-input",
                                 height=40,
                                 multiline=True,
-                                name="chat-input",
+                                style_type_name_override="InputField",
                             )
 
                             # Add keyboard handler for Enter key
@@ -216,7 +219,7 @@ class IvyverseWindow(ui.Window):
                             # Send button (existing)
                             self._send_button = ui.Button(
                                 name="send",
-                                width=80,
+                                width=40,
                                 height=40,
                                 clicked_fn=self._send_message,
                                 style={"background_color": cl.color("#00B4D8")},
@@ -460,10 +463,8 @@ class IvyverseWindow(ui.Window):
         """Toggle voice recording on/off"""
         if not self._voice_connected:
             if self.chat_interface:
-                timestamp = datetime.datetime.now().strftime("%H:%M %p")
-                self.chat_interface._add_assistant_message(
+                self.chat_interface.add_assistant_message(
                     "Voice feature not connected. Please save OpenAI API key first.",
-                    timestamp,
                     "Voice System",
                 )
             return
@@ -477,7 +478,7 @@ class IvyverseWindow(ui.Window):
             # Start recording
             self._voice_recording = True
             self._voice_response_mode = True  # Enable voice response
-            self._voice_button.name = "audio-wave"  # Change to audio wave icon
+            self._voice_button.name = "stop"  # Change to audio wave icon
             self.voice_interface.start_recording()
 
     async def _process_uploaded_audio(self, file_path: str):
@@ -499,8 +500,7 @@ class IvyverseWindow(ui.Window):
         if self._conversation_mode:
             # In conversation mode, add transcript directly to chat
             if self.chat_interface and transcript:
-                timestamp = datetime.datetime.now().strftime("%H:%M %p")
-                self.chat_interface._add_user_message(transcript, timestamp)
+                self.chat_interface.add_voice_transcript(transcript)
         else:
             # In voice input mode, update input field
             if self._chat_input and transcript:
@@ -522,9 +522,8 @@ class IvyverseWindow(ui.Window):
 
         if self.chat_interface:
             # Add error message to chat
-            timestamp = datetime.datetime.now().strftime("%H:%M %p")
-            self.chat_interface._add_assistant_message(
-                f"Voice Error: {error_message}", timestamp, "Voice System"
+            self.chat_interface.add_error_message(
+                f"Voice Error: {error_message}", "Voice System"
             )
 
     def _on_audio_playback_start(self):
@@ -546,23 +545,18 @@ class IvyverseWindow(ui.Window):
         carb.log_info(f"Complete text response: {full_text}")
         # Add the text response to chat interface
         if self.chat_interface:
-            timestamp = datetime.datetime.now().strftime("%H:%M %p")
             response_type = (
                 "Conversation" if self._conversation_mode else "Voice Response"
             )
-            self.chat_interface._add_assistant_message(
-                full_text, timestamp, response_type
-            )
+            self.chat_interface.add_assistant_message(full_text, response_type)
 
     def _toggle_conversation(self):
         """Toggle conversation mode"""
         if not self._voice_connected:
             if self.chat_interface:
-                timestamp = datetime.datetime.now().strftime("%H:%M %p")
-                self.chat_interface._add_assistant_message(
-                    "Voice feature not connected. Please save OpenAI API key first.",
-                    timestamp,
-                    "Voice System",
+                # timestamp = datetime.datetime.now().strftime("%H:%M %p")
+                self.chat_interface.add_assistant_message(
+                    "Voice feature not connected. Please save OpenAI API key first."
                 )
         if self._conversation_mode:
             asyncio.ensure_future(self._disable_conversation_mode())
@@ -584,10 +578,8 @@ class IvyverseWindow(ui.Window):
 
                 # Add system message
                 if self.chat_interface:
-                    timestamp = datetime.datetime.now().strftime("%H:%M %p")
-                    self.chat_interface._add_assistant_message(
+                    self.chat_interface.add_assistant_message(
                         "Conversation mode enabled. Start speaking naturally!",
-                        timestamp,
                         "System",
                     )
 
@@ -606,10 +598,8 @@ class IvyverseWindow(ui.Window):
 
             # Add system message
             if self.chat_interface:
-                timestamp = datetime.datetime.now().strftime("%H:%M %p")
-                self.chat_interface._add_assistant_message(
+                self.chat_interface.add_assistant_message(
                     "Conversation mode disabled.",
-                    timestamp,
                     "System",
                 )
 
@@ -660,6 +650,8 @@ class IvyverseWindow(ui.Window):
                 and self._voice_response_mode
                 and message_text.strip()
             ):
+                self._chat_input.model.set_value("")
+                self.chat_interface.add_user_message(message_text)
                 asyncio.ensure_future(
                     self.voice_interface.send_dictation_response(message_text)
                 )

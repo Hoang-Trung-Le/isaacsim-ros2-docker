@@ -301,6 +301,34 @@ Keep responses conversational and under 30 seconds when possible."""
         await self._send_event({"type": "input_audio_buffer.clear"})
         carb.log_info("Conversation streaming stopped")
 
+    async def enable_conversation_mode(self):
+        """Enable conversation mode with server VAD"""
+        try:
+            await self._send_event(
+                {"type": "session.update", "session": self.conversation_mode_config}
+            )
+            self.conversation_mode = True
+            carb.log_info("Conversation mode enabled with server VAD")
+        except Exception as e:
+            carb.log_error(f"Error enabling conversation mode: {e}")
+            raise
+
+    async def disable_conversation_mode(self):
+        """Disable conversation mode and return to dictation mode"""
+        try:
+            # Stop any active streaming first
+            if self.streaming_active:
+                await self.stop_conversation_streaming()
+
+            await self._send_event(
+                {"type": "session.update", "session": self.dictation_mode_config}
+            )
+            self.conversation_mode = False
+            carb.log_info("Conversation mode disabled - returned to dictation mode")
+        except Exception as e:
+            carb.log_error(f"Error disabling conversation mode: {e}")
+            raise
+
     async def stream_audio_chunk(self, audio_chunk: bytes):
         """Stream audio chunk in real-time for conversation mode"""
         if not self.streaming_active or not self.conversation_mode:
@@ -382,19 +410,34 @@ Keep responses conversational and under 30 seconds when possible."""
                     self.on_audio_done()
                 self.audio_buffer = b""
 
-            elif event_type == "response.text.delta":
-                # Text response chunk
-                text_delta = event.get("delta", "")
-                if text_delta and self.on_text_delta:
-                    self.on_text_delta(text_delta)
-                    carb.log_info(f"Text response: {text_delta}")
-
-            elif event_type == "response.text.done":
-                # Text response completed
-                text_done = event.get("done", False)
-                carb.log_info("Text response completed")
+            elif event_type == "response.content_part.done":
+                # Text content part completed (new correct event type)
+                content_part = event.get("part", {})
+                text_content = content_part.get("text", "")
+                carb.log_info(f"Content part completed: {text_content}")
                 if self.on_text_done:
-                    self.on_text_done(text_done)
+                    self.on_text_done(text_content)
+
+            elif event_type == "response.output_item.done":
+                # Output item completed
+                output_item = event.get("item", {})
+                carb.log_info(
+                    f"Output item completed: {output_item.get('type', 'unknown')}"
+                )
+
+            elif event_type == "response.audio_transcript.delta":
+                # Audio transcription chunk
+                transcript_delta = event.get("delta", "")
+                if transcript_delta and self.on_transcript_delta:
+                    self.on_transcript_delta(transcript_delta)
+                    carb.log_info(f"Audio transcription delta: {transcript_delta}")
+
+            elif event_type == "response.audio_transcript.done":
+                # Audio transcription completed
+                transcript = event.get("transcript", "")
+                if transcript:
+                    carb.log_info(f"Audio transcription completed: {transcript}")
+                    self.on_text_done(transcript)
 
             elif event_type == "response.done":
                 carb.log_info("Response generation completed")

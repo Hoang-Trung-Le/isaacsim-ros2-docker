@@ -104,7 +104,7 @@ ivyverse_style = {
     },
     "Button.Image::send": {
         "color": cl.color.white,
-        "image_url": f"{icon_path}/send.svg" if icon_path else None,
+        "image_url": f"{icon_path}/submitButton.svg" if icon_path else None,
     },
     "Button.Image::send:hovered": {
         "color": cl.accent_color,
@@ -115,6 +115,10 @@ ivyverse_style = {
     },
     "Button.Image::audio-wave": {
         "image_url": f"{icon_path}/audio-wave.svg",
+        "color": cl.color.white,
+    },
+    "Button.Image::stop": {
+        "image_url": f"{icon_path}/stop-button.svg",
         "color": cl.color.white,
     },
     "Button.Image::conversation": {
@@ -131,23 +135,6 @@ ivyverse_style = {
     "Button.Image::upload:pressed": {
         "color": cl.accent_color,
     },
-    # Input field styling
-    "TextField": {
-        "background_color": cl.color.black,
-        "border_color": cl.primary_color,
-        "border_width": 1,
-        "border_radius": 3,
-        "padding": 8,
-        "color": cl.color.white,
-        "font_size": ct.font_size_normal,
-    },
-    "TextField:focused": {
-        "border_color": cl.accent_color,
-    },
-    "TextField:disabled": {
-        "background_color": cl.disabled_color,
-        "border_color": cl.border_color,
-    },
     "StringField": {
         "background_color": cl.color.black,
         "color": cl.color.white,
@@ -155,8 +142,8 @@ ivyverse_style = {
         "border_radius": 4,
         "padding": 8,
     },
-    "TextField::chat-input": {
-        "background_color": cl.color.black,
+    "StringField::api-key-field": {
+        "background_color": cl.primary_color,
         "color": cl.color.white,
         "border_color": cl.border_color,
         "border_radius": 4,
@@ -168,6 +155,34 @@ ivyverse_style = {
         "border_color": cl.border_color,
         "border_radius": 4,
         "padding": 8,
+    },
+    # InputField styling (for StringFields with style_type_name_override)
+    "InputField": {
+        "background_color": cl.input_field_bg_color,
+        "color": cl.color.white,
+        "border_color": cl.border_color,
+        "border_width": 1,
+        "border_radius": 4,
+        "padding": 8,
+        "font_size": ct.font_size_normal,
+    },
+    "InputField::api-key-field": {
+        "background_color": cl.color.black,
+        "color": cl.color.white,
+        "border_color": cl.accent_color,
+        "border_width": 1,
+        "border_radius": 4,
+        "padding": 8,
+        "font_size": ct.font_size_normal,
+    },
+    "InputField::chat-input": {
+        "background_color": cl.color.black,
+        "color": cl.color.white,
+        "border_color": cl.primary_color,
+        "border_width": 1,
+        "border_radius": 4,
+        "padding": 8,
+        "font_size": ct.font_size_normal,
     },
     # ComboBox styling
     "ComboBox": {
