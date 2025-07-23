@@ -69,21 +69,28 @@ class MessageBubble:
             background_color=0xFF2D3748,
             border_radius=6,
             avatar_bg_color=0xFF805AD5,
-            avatar_text="V",
+            avatar_text="A",
             icon_position="left",
         ),
         MessageType.THINKING: MessageConfig(
             background_color=0xFF196282,
             border_radius=8,
             avatar_bg_color=0xFF2C88D9,
-            avatar_text="...",
+            avatar_text="A",
             icon_position="right",
             show_source=False,
         ),
     }
 
-    def __init__(self, parent_stack: ui.VStack):
+    def __init__(
+        self, parent_stack: ui.VStack, conversation_history: List[Dict[str, Any]]
+    ):
         self.parent_stack = parent_stack
+        self.conversation_history = (
+            conversation_history  # Reference to ChatInterface history
+        )
+        # Professional practice: Single live transcript state management
+        self._message_data = None  # {id, label, text_buffer, timestamp, container}
 
     def create_message(
         self,
@@ -92,47 +99,88 @@ class MessageBubble:
         timestamp: str = None,
         source: str = None,
         role_name: str = None,
+        is_done: bool = True,
     ) -> ui.ZStack:
         """Create a unified message bubble for any message type"""
-        config = self.CONFIGS[message_type]
 
-        if not timestamp:
-            timestamp = datetime.datetime.now().strftime("%H:%M %p")
+        # Initialize on first call
+        if self._message_data is None:
+            import uuid
 
-        if not role_name:
-            role_name = message_type.value.title()
+            message_id = f"{message_type.value}_{uuid.uuid4().hex[:8]}"
 
-        with self.parent_stack:
-            container = ui.ZStack(height=0)
+            config = self.CONFIGS[message_type]
+            if not timestamp:
+                timestamp = datetime.datetime.now().strftime("%H:%M %p")
+            if not role_name:
+                role_name = message_type.value.title()
 
-            with container:
-                # Background rectangle
-                ui.Rectangle(
-                    style={
-                        "background_color": config.background_color,
-                        "border_radius": config.border_radius,
-                        "border_color": config.border_color,
-                        "border_width": config.border_width,
-                    }
-                )
+            with self.parent_stack:
+                container = ui.ZStack(height=0)
 
-                # Content layout
-                with ui.VStack(style={"padding": 10}):
-                    with ui.HStack(height=0):
-                        if config.icon_position == "left":
-                            self._create_avatar(config)
-                            self._create_content(
-                                message, role_name, timestamp, source, config
-                            )
-                            ui.Spacer(width=10)
-                        else:
-                            ui.Spacer(width=10)
-                            self._create_content(
-                                message, role_name, timestamp, source, config
-                            )
-                            self._create_avatar(config)
+                with container:
+                    # Background rectangle
+                    ui.Rectangle(
+                        style={
+                            "background_color": config.background_color,
+                            "border_radius": config.border_radius,
+                            "border_color": config.border_color,
+                            "border_width": config.border_width,
+                        }
+                    )
 
-            return container
+                    # Content layout
+                    with ui.VStack(style={"padding": 10}):
+                        with ui.HStack(height=0):
+                            if config.icon_position == "left":
+                                self._create_avatar(config)
+                                message_label = self._create_content(
+                                    message,
+                                    role_name,
+                                    timestamp,
+                                    source,
+                                    config,
+                                )
+                                ui.Spacer(width=10)
+                            else:
+                                ui.Spacer(width=10)
+                                message_label = self._create_content(
+                                    message,
+                                    role_name,
+                                    timestamp,
+                                    source,
+                                    config,
+                                )
+                                self._create_avatar(config)
+
+                self._message_data = {
+                    "id": message_id,
+                    "label": message_label,
+                    "text_buffer": message,
+                    "timestamp": timestamp,
+                }
+
+        if self._message_data and not is_done:
+            self._message_data["text_buffer"] += message
+            if self._message_data["label"] and hasattr(
+                self._message_data["label"], "text"
+            ):
+                self._message_data["label"].text = self._message_data["text_buffer"]
+
+        if self._message_data and is_done:
+            self.conversation_history.append(
+                {
+                    "role": message_type.value,
+                    "content": self._message_data["text_buffer"],
+                    "timestamp": self._message_data["timestamp"],
+                    "source": source,
+                    "message_id": self._message_data["id"],
+                }
+            )
+            state_to_cleanup = self._message_data
+            self._message_data = None
+            asyncio.ensure_future(self._cleanup_after_delay(state_to_cleanup, 2.0))
+        return container
 
     def _create_avatar(self, config: MessageConfig) -> None:
         """Create avatar icon"""
@@ -162,8 +210,10 @@ class MessageBubble:
         timestamp: str,
         source: str,
         config: MessageConfig,
-    ) -> None:
+    ) -> ui.Label:
         """Create message content area"""
+        message_label = None
+
         with ui.VStack(width=ui.Fraction(1)):
             # Header with role and timestamp
             if config.show_timestamp:
@@ -173,7 +223,6 @@ class MessageBubble:
                         style={
                             "color": config.text_color,
                             "font_size": 12,
-                            "font_weight": "bold",
                         },
                     )
                     ui.Spacer()
@@ -182,8 +231,8 @@ class MessageBubble:
                         style={"color": 0xFFCCCCCC, "font_size": 10},
                     )
 
-            # Message text
-            ui.Label(
+            # Message text - store reference for live updates
+            message_label = ui.Label(
                 message,
                 word_wrap=True,
                 style={"color": config.text_color, "font_size": 13},
@@ -195,6 +244,14 @@ class MessageBubble:
                     f"Source: {source}",
                     style={"color": 0xFFCCCCCC, "font_size": 10},
                 )
+
+        return message_label
+
+    async def _cleanup_after_delay(self, state: dict, delay: float):
+        """Professional cleanup with delay"""
+        await asyncio.sleep(delay)
+        # State is already copied, safe to cleanup
+        carb.log_info(f"Cleaned up live transcript: {state['id']}")
 
 
 class ChatInterface:
@@ -214,13 +271,15 @@ class ChatInterface:
         """Build the chat UI within the history frame"""
         with self.chat_history_frame:
             self.chat_stack = ui.VStack()
-            self.message_bubble = MessageBubble(self.chat_stack)
+            # Pass conversation history reference for professional state management
+            self.message_bubble = MessageBubble(
+                self.chat_stack, self.conversation_history
+            )
 
             # Welcome message
-            self.add_message(
+            self.add_assistant_message(
                 message="Welcome to Ivyverse! I'm here to help you understand and analyze your USD scenes.",
                 # message="こんにちは！Ivyverseへようこそ！USDシーンの理解と分析をお手伝いします。",
-                message_type=MessageType.ASSISTANT,
                 source="Initialization",
             )
 
@@ -229,301 +288,53 @@ class ChatInterface:
         message: str,
         message_type: MessageType,
         source: str = None,
-        role_name: str = None,
+        is_done: bool = True,
     ):
         """Unified method to add any type of message with automatic timestamp generation"""
-        # Generate timestamp here for consistency
-        timestamp = datetime.datetime.now().strftime("%H:%M %p")
 
         # Create the message bubble
-        container = self.message_bubble.create_message(
+        self.message_bubble.create_message(
             message=message,
             message_type=message_type,
-            timestamp=timestamp,
             source=source,
-            role_name=role_name,
-        )
-
-        # Add to conversation history with ISO timestamp for data storage
-        self.conversation_history.append(
-            {
-                "role": message_type.value,
-                "content": message,
-                "timestamp": datetime.datetime.now().isoformat(),
-                "source": source,
-            }
+            is_done=is_done,
         )
 
         # Auto-scroll to bottom
         self.chat_history_frame.scroll_y = self.chat_history_frame.scroll_y_max
 
-        return container
+    def add_live_transcript(
+        self, delta_text: str, is_done: bool = False, source="Voice Transcript"
+    ):
+        """
+        Professional single-entry point for live transcript handling
+        Call this method from external voice handler with each delta and completion flag
+        """
+        return self.add_message(
+            delta_text, MessageType.VOICE_TRANSCRIPT, is_done=is_done, source=source
+        )
 
     # Simplified convenience methods without timestamp parameters
     def add_user_message(self, message: str):
-        """Add user message"""
         return self.add_message(message, MessageType.USER)
 
     def add_assistant_message(self, message: str, source: str = None):
-        """Add assistant message"""
         return self.add_message(message, MessageType.ASSISTANT, source=source)
 
     def add_system_message(self, message: str, source: str = "System"):
-        """Add system message"""
         return self.add_message(message, MessageType.SYSTEM, source=source)
 
     def add_error_message(self, message: str, source: str = "Error"):
-        """Add error message"""
         return self.add_message(message, MessageType.ERROR, source=source)
-
-    def add_voice_transcript(self, message: str):
-        """Add voice transcript message"""
-        return self.add_message(
-            message, MessageType.VOICE_TRANSCRIPT, source="Voice Input"
-        )
 
     def add_thinking_indicator(
         self, message: str = "I will now process your inquiry. Please wait..."
     ):
-        """Add thinking indicator"""
         self.thinking_container = self.add_message(message, MessageType.THINKING)
         return self.thinking_container
 
-    # def _add_user_message(self, message: str, timestamp: str):
-    #     """Add a user message with enhanced styling using ZStack and Rectangle"""
-    #     carb.log_error(f"Logging user message {message}")
-    #     with self.chat_stack:
-    #         # Create a container for the entire message
-    #         with ui.ZStack(height=0):  # dynamic height
-    #             # First layer: colored background rectangle
-    #             ui.Rectangle(
-    #                 style={
-    #                     "background_color": 0xFF3A3A3A,  # User message background color
-    #                     "border_radius": 8,  # Rounded corners
-    #                     "border_color": 0xFF4F4F4F,  # Subtle border color
-    #                     "border_width": 0,  # No border by default
-    #                     # "debug_color": cl.color.red,
-    #                 }
-    #             )
-
-    #             # Second layer: actual content
-    #             with ui.VStack(style={"padding": 10}):  # Add padding to the content
-    #                 with ui.HStack(height=0):  # Message layout
-    #                     # User icon frame - on the left (opposite of assistant)
-    #                     with ui.VStack(width=40):
-    #                         with ui.Frame(
-    #                             width=32,
-    #                             height=32,
-    #                             style={
-    #                                 "background_color": 0xFF4F4F4F,
-    #                                 "border_radius": 16,
-    #                                 "margin": 4,
-    #                                 # "debug_color": cl("#FF000055"),
-    #                             },
-    #                         ):
-    #                             ui.Label(
-    #                                 "U",
-    #                                 alignment=ui.Alignment.CENTER,
-    #                                 style={
-    #                                     "color": 0xFFFFFFFF,
-    #                                     "font_size": 16,
-    #                                     # "debug_color": cl("#FF000055"),
-    #                                 },
-    #                             )
-
-    #                     # Message container
-    #                     with ui.VStack(width=ui.Fraction(1)):
-    #                         # Header with timestamp
-    #                         with ui.HStack(height=24):
-    #                             ui.Label(
-    #                                 "You",
-    #                                 style={
-    #                                     "color": 0xFFFFFFFF,
-    #                                     "font_size": 12,
-    #                                     "font_weight": "bold",
-    #                                 },
-    #                             )
-    #                             ui.Spacer()
-    #                             ui.Label(
-    #                                 timestamp,
-    #                                 style={"color": 0xFF808080, "font_size": 10},
-    #                             )
-
-    #                         # Message content text directly (no need for nested Frame)
-    #                         ui.Label(
-    #                             message,
-    #                             word_wrap=True,
-    #                             style={"color": 0xFFFFFFFF, "font_size": 13},
-    #                         )
-
-    #                     # Right spacing
-    #                     ui.Spacer(width=10)
-
-    #         # Force scroll to newest content
-    #         self.chat_history_frame.scroll_y = self.chat_history_frame.scroll_y_max
-
-    # def _add_assistant_message(self, message: str, timestamp: str, source: str = None):
-    #     """Add an assistant message with enhanced styling"""
-    #     with self.chat_stack:
-    #         # Create a container for the entire message
-    #         with ui.ZStack(
-    #             height=0,
-    #             # style={"debug_color": cl("#FF000055")}
-    #         ):  # dynamic height
-    #             # First layer: colored background rectangle
-    #             ui.Rectangle(
-    #                 style={
-    #                     "background_color": 0xFF196282,  # Background color
-    #                     "border_radius": 8,  # Rounded corners
-    #                     # "margin": 15,
-    #                     "padding": 10,
-    #                     "border_color": 0xFFFF5722,  # Add border color (orange in this example)
-    #                     "border_width": 0,
-    #                     # "padding": 10,
-    #                     # "debug_color": cl("#FF000055"),
-    #                 }
-    #             )
-
-    #             # Second layer: actual content
-    #             with ui.VStack(style={"padding": 10}):  # Add padding to the content
-    #                 with ui.HStack(height=0):  # Message layout
-    #                     # Left spacing
-    #                     ui.Spacer(width=10)
-
-    #                     # Message container
-    #                     with ui.VStack(width=ui.Fraction(1)):
-    #                         # Header with timestamp
-    #                         with ui.HStack(height=24):
-    #                             ui.Label(
-    #                                 "Assistant",
-    #                                 style={
-    #                                     "color": 0xFFFFFFFF,
-    #                                     "font_size": 12,
-    #                                     "font_weight": "bold",
-    #                                 },
-    #                             )
-    #                             ui.Spacer()
-    #                             ui.Label(
-    #                                 timestamp,
-    #                                 style={"color": 0xFFCCCCCC, "font_size": 10},
-    #                             )
-
-    #                         # Message content text
-    #                         ui.Label(
-    #                             message,
-    #                             word_wrap=True,
-    #                             style={"color": 0xFFFFFFFF, "font_size": 13},
-    #                         )
-
-    #                         # Source information if provided
-    #                         if source:
-    #                             with ui.HStack(
-    #                                 height=20,
-    #                                 # style={"margin_top": 5}
-    #                             ):
-    #                                 ui.Label(
-    #                                     f"Source: {source}",
-    #                                     style={"color": 0xFFCCCCCC, "font_size": 10},
-    #                                 )
-
-    #                     # Assistant icon frame
-    #                     with ui.VStack(width=40):
-    #                         with ui.Frame(
-    #                             width=32,
-    #                             height=32,
-    #                             style={
-    #                                 "background_color": 0xFF2C88D9,
-    #                                 "border_radius": 16,
-    #                                 "margin": 4,
-    #                             },
-    #                         ):
-    #                             ui.Label(
-    #                                 "A",
-    #                                 alignment=ui.Alignment.CENTER,
-    #                                 style={"color": 0xFFFFFFFF, "font_size": 16},
-    #                             )
-
-    #                     ui.Spacer(width=10)
-
-    #         # Force scroll to newest content
-    #         self.chat_history_frame.scroll_y = self.chat_history_frame.scroll_y_max
-
-    # def _add_thinking_indicator(self):
-    #     """Add a 'thinking' indicator when the assistant is processing a request"""
-    #     with self.chat_stack:
-    #         # Store reference to the entire container for later removal
-    #         self.thinking_container = ui.ZStack(
-    #             height=0
-    #         )  # Use ZStack for consistent styling
-
-    #         with self.thinking_container:
-    #             # First layer: colored background rectangle
-    #             ui.Rectangle(
-    #                 style={
-    #                     "background_color": 0xFF196282,  # Background color
-    #                     "border_radius": 8,  # Rounded corners
-    #                 }
-    #             )
-
-    #             # Second layer: actual content
-    #             with ui.VStack(style={"padding": 10}):
-    #                 with ui.HStack(height=0):
-    #                     # Left spacing
-    #                     ui.Spacer(width=10)
-
-    #                     # Processing message
-    #                     with ui.VStack(width=ui.Fraction(1)):
-    #                         # Header with timestamp
-    #                         with ui.HStack(height=24):
-    #                             ui.Label(
-    #                                 "Assistant",
-    #                                 style={
-    #                                     "color": 0xFFFFFFFF,
-    #                                     "font_size": 12,
-    #                                     "font_weight": "bold",
-    #                                 },
-    #                             )
-    #                             ui.Spacer()
-    #                             ui.Label(
-    #                                 datetime.datetime.now().strftime("%H:%M %p"),
-    #                                 style={"color": 0xFF808080, "font_size": 10},
-    #                             )
-
-    #                         # Processing label
-    #                         self.processing_label = ui.Label(
-    #                             "I will now process your inquiry. Please wait...",
-    #                             # "処理中でお問い合わせを処理します。お待ちください...",
-    #                             style={"color": 0xFFFFFFFF, "font_size": 13},
-    #                         )
-
-    #                     # Assistant icon frame
-    #                     with ui.VStack(width=40):
-    #                         with ui.Frame(
-    #                             width=32,
-    #                             height=32,
-    #                             style={
-    #                                 "background_color": 0xFF2C88D9,
-    #                                 "border_radius": 16,
-    #                                 "margin": 4,
-    #                             },
-    #                         ):
-    #                             ui.Label(
-    #                                 "A",
-    #                                 alignment=ui.Alignment.CENTER,
-    #                                 style={"color": 0xFFFFFFFF, "font_size": 16},
-    #                             )
-
-    #                     ui.Spacer(width=10)
-
-    #         # Force scroll to newest content
-    #         self.chat_history_frame.scroll_y = self.chat_history_frame.scroll_y_max
-
-    #         return self.processing_label
-
     def _remove_thinking_indicator(self):
-        """Remove the 'thinking' indicator"""
         if hasattr(self, "thinking_container") and self.thinking_container:
-            # Remove the entire container from the UI tree
             self.thinking_container.destroy()
             self.thinking_container = None
 
@@ -755,9 +566,9 @@ When answering questions about scene contents:
 
         self.scene_context = context + object_details
         self.add_assistant_message(
-            "Scene context updated. I now have the latest information about your USD scene.",
-            # "シーンコンテキストが更新されました。USDシーンに関する最新情報を取得しました。",
-            "Scene Analysis",
+            message="Scene context updated. I now have the latest information about your USD scene.",
+            # message="シーンコンテキストが更新されました。USDシーンに関する最新情報を取得しました。",
+            source="Scene Analysis",
         )
 
     def export_history(self, filepath: str = None):
@@ -775,40 +586,11 @@ When answering questions about scene contents:
             with open(filepath, "w") as f:
                 json.dump(export_data, f, indent=2)
             self.add_assistant_message(
-                f"Chat history exported to: {filepath}", "System"
+                message=f"Chat history exported to: {filepath}",
+                source="System",
             )
         except Exception as e:
             self.add_assistant_message(
-                f"Error exporting chat history: {str(e)}", "System Error"
+                message=f"Error exporting chat history: {str(e)}",
+                source="System Error",
             )
-
-    # Add this method to the ChatInterface class
-    # def display_system_message(self, message):
-    #     """Display a system message in the chat"""
-    #     # Create a frame for the system message with special styling
-    #     with self.chat_history:
-    #         with ui.ZStack():
-    #             ui.Rectangle(
-    #                 style={
-    #                     "background_color": COLORS["surface"],
-    #                     "border_radius": 8,
-    #                     "border_color": COLORS["accent"],
-    #                     "border_width": 1,
-    #                 }
-    #             )
-    #             with ui.VStack(style={"padding": 10}):
-    #                 ui.Label(
-    #                     message,
-    #                     word_wrap=True,
-    #                     style={
-    #                         "color": COLORS["accent"],
-    #                         "font_size": 14,
-    #                     },
-    #                 )
-    #                 ui.Label(
-    #                     "System",
-    #                     style={
-    #                         "color": COLORS["text_secondary"],
-    #                         "font_size": 10,
-    #                     },
-    #                 )

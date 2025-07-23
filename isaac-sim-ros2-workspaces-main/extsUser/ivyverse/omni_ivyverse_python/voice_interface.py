@@ -31,13 +31,10 @@ class VoiceInterface:
         self.main_loop = None  # Store reference to main event loop
 
         # Callbacks for UI updates
-        self.on_transcript_update = None
         self.on_status_update = None
         self.on_error = None
         self.on_audio_playback_start = None
         self.on_audio_playback_end = None
-        self.on_text_response_delta = None
-        self.on_text_response_done = None
         self.conversation_mode = False
         self.conversation_streaming = False
         self.on_speech_started = None
@@ -108,26 +105,26 @@ class VoiceInterface:
 
     def set_ui_callbacks(
         self,
-        on_transcript_update: Callable[[str], None] = None,
         on_status_update: Callable[[str, bool], None] = None,
         on_error: Callable[[str], None] = None,
         on_audio_playback_start: Callable[[], None] = None,
         on_audio_playback_end: Callable[[], None] = None,
-        on_text_response_delta: Callable[[str], None] = None,
-        on_text_response_done: Callable[[str], None] = None,
         on_speech_started: Callable[[], None] = None,
         on_speech_stopped: Callable[[], None] = None,
+        on_user_transcript_complete: Callable[[str], None] = None,
+        on_response_transcript_delta: Callable[[str], None] = None,
+        on_response_transcript_done: Callable[[str], None] = None,
     ):
         """Set UI callback functions"""
-        self.on_transcript_update = on_transcript_update
         self.on_status_update = on_status_update
         self.on_error = on_error
         self.on_audio_playback_start = on_audio_playback_start
         self.on_audio_playback_end = on_audio_playback_end
-        self.on_text_response_delta = on_text_response_delta
-        self.on_text_response_done = on_text_response_done
         self.on_speech_started = on_speech_started
         self.on_speech_stopped = on_speech_stopped
+        self.on_user_transcript_complete = on_user_transcript_complete
+        self.on_response_transcript_delta = on_response_transcript_delta
+        self.on_response_transcript_done = on_response_transcript_done
 
     async def initialize_connection(self, api_key: str, voice: str = "alloy") -> bool:
         """Initialize connection to OpenAI Realtime API"""
@@ -144,13 +141,13 @@ class VoiceInterface:
             self.api_client.set_callbacks(
                 on_audio_delta=self._on_audio_delta,
                 on_audio_done=self._on_audio_done,
-                on_transcript_delta=self._on_transcript_delta,
                 on_error=self._on_api_error,
-                on_text_delta=self._on_text_response_delta,
-                on_text_done=self._on_text_response_done,
                 on_speech_started=self._on_speech_started,
                 on_speech_stopped=self._on_speech_stopped,
                 on_rag_context_needed=self._on_rag_context_needed,
+                on_user_transcript_complete=self._on_user_transcript_complete,
+                on_response_transcript_delta=self._on_response_transcript_delta,
+                on_response_transcript_done=self._on_response_transcript_done,
             )
 
             # Connect to API
@@ -468,25 +465,24 @@ class VoiceInterface:
         if self.on_audio_playback_end:
             self.on_audio_playback_end()
 
-    def _on_transcript_delta(self, transcript: str):
-        """Handle transcription updates"""
-        self.current_transcript = transcript
-        if self.on_transcript_update:
-            self.on_transcript_update(transcript)
-        carb.log_info(f"Transcript: {transcript}")
+    def _on_user_transcript_complete(self, transcript: str):
+        """Handle user transcript completion"""
+        carb.log_info(f"User transcript complete: {transcript}")
+        if self.on_user_transcript_complete:
+            self.on_user_transcript_complete(transcript)
 
-    def _on_text_response_delta(self, text_delta: str):
+    def _on_response_transcript_delta(self, text_delta: str):
         """Handle text response updates"""
         self.current_text_response += text_delta
-        if self.on_text_response_delta:
-            self.on_text_response_delta(text_delta)
+        if self.on_response_transcript_delta:
+            self.on_response_transcript_delta(text_delta)
 
-    def _on_text_response_done(self, text_content: str):
+    def _on_response_transcript_done(self, text_content: str):
         """Handle completion of text response"""
         carb.log_info(f"Text response completed: {text_content}")
-        if self.on_text_response_done and text_content:
+        if self.on_response_transcript_done and text_content:
             # Pass the actual text content to the UI callback
-            self.on_text_response_done(text_content)
+            self.on_response_transcript_done(text_content)
         # Clear accumulated response since we now get the complete text
         self.current_text_response = ""
 

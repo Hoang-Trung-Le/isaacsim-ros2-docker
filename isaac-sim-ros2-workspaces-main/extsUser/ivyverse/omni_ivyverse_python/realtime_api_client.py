@@ -36,9 +36,6 @@ class RealtimeAPIClient:
         # Callbacks
         self.on_audio_delta = None
         self.on_audio_done = None
-        self.on_transcript_delta = None
-        self.on_text_delta = None
-        self.on_text_done = None
         self.conversation_mode = False
         self.streaming_active = False
         self.on_error = None
@@ -56,7 +53,12 @@ class RealtimeAPIClient:
             "input_audio_format": "pcm16",
             "output_audio_format": "pcm16",
             "turn_detection": None,  # Manual turn detection
-            "input_audio_transcription": {"model": "whisper-1"},
+            "input_audio_transcription": {
+                "model": "whisper-1",
+                "prompt": "English or Japanese",
+                "language": ["English", "Japanese"],
+            },
+            "input_audio_noise_reduction": {"type": "near_field"},
             "temperature": 0.7,
         }
 
@@ -68,13 +70,18 @@ class RealtimeAPIClient:
             "output_audio_format": "pcm16",
             "turn_detection": {
                 "type": "server_vad",
-                "threshold": 0.5,
-                "prefix_padding_ms": 100,
+                "threshold": 0.9,
+                "prefix_padding_ms": 200,
                 "silence_duration_ms": 500,
                 "create_response": True,
                 "interrupt_response": True,
             },
-            "input_audio_transcription": {"model": "whisper-1"},
+            "input_audio_transcription": {
+                "model": "whisper-1",
+                "prompt": "English or Japanese",
+                "language": ["English", "Japanese"],
+            },
+            "input_audio_noise_reduction": {"type": "near_field"},
             "temperature": 0.7,
         }
 
@@ -90,24 +97,24 @@ Keep responses conversational and under 30 seconds when possible."""
         self,
         on_audio_delta: Callable[[bytes], None] = None,
         on_audio_done: Callable[[], None] = None,
-        on_text_delta: Callable[[str], None] = None,
-        on_text_done: Callable[[], None] = None,
-        on_transcript_delta: Callable[[str], None] = None,
         on_error: Callable[[str], None] = None,
         on_speech_started: Callable[[], None] = None,
         on_speech_stopped: Callable[[], None] = None,
         on_rag_context_needed: Callable[[str], None] = None,
+        on_user_transcript_complete: Callable[[str], None] = None,
+        on_response_transcript_delta: Callable[[str], None] = None,
+        on_response_transcript_done: Callable[[str], None] = None,
     ):
         """Set callback functions for various events"""
         self.on_audio_delta = on_audio_delta
         self.on_audio_done = on_audio_done
-        self.on_text_delta = on_text_delta
-        self.on_text_done = on_text_done
-        self.on_transcript_delta = on_transcript_delta
         self.on_error = on_error
         self.on_speech_started = on_speech_started
         self.on_speech_stopped = on_speech_stopped
         self.on_rag_context_needed = on_rag_context_needed
+        self.on_user_transcript_complete = on_user_transcript_complete
+        self.on_response_transcript_delta = on_response_transcript_delta
+        self.on_response_transcript_done = on_response_transcript_done
 
     async def connect(self) -> bool:
         """Connect to the OpenAI Realtime API WebSocket"""
@@ -207,7 +214,7 @@ Keep responses conversational and under 30 seconds when possible."""
         try:
             # Send audio data in chunks
             chunk_size = 8192
-            chunk_to_batch = 5  # Send multiple chunks at once
+            chunk_to_batch = 10  # Send multiple chunks at once
             for i in range(0, len(audio_data), chunk_size * chunk_to_batch):
                 # Send multiple chunks in parallel
                 tasks = []
@@ -377,13 +384,13 @@ Keep responses conversational and under 30 seconds when possible."""
             elif event_type == "conversation.item.input_audio_transcription.completed":
                 # Audio transcription completed
                 transcript = event.get("transcript", "")
-                if self.on_transcript_delta and transcript:
-                    self.on_transcript_delta(transcript)
-                    carb.log_info(f"Transcription: {transcript}")
+                if self.on_user_transcript_complete and transcript:
+                    self.on_user_transcript_complete(transcript)
+                    carb.log_info(f"User transcription: {transcript}")
 
-                    # For conversation mode, trigger RAG context retrieval
-                    if self.conversation_mode and self.on_rag_context_needed:
-                        self.on_rag_context_needed(transcript)
+                # For conversation mode, trigger RAG context retrieval
+                if self.conversation_mode and self.on_rag_context_needed:
+                    self.on_rag_context_needed(transcript)
 
             elif event_type == "input_audio_buffer.speech_started":
                 carb.log_info("Speech started detected by server VAD")
@@ -410,34 +417,17 @@ Keep responses conversational and under 30 seconds when possible."""
                     self.on_audio_done()
                 self.audio_buffer = b""
 
-            elif event_type == "response.content_part.done":
-                # Text content part completed (new correct event type)
-                content_part = event.get("part", {})
-                text_content = content_part.get("text", "")
-                carb.log_info(f"Content part completed: {text_content}")
-                if self.on_text_done:
-                    self.on_text_done(text_content)
-
-            elif event_type == "response.output_item.done":
-                # Output item completed
-                output_item = event.get("item", {})
-                carb.log_info(
-                    f"Output item completed: {output_item.get('type', 'unknown')}"
-                )
-
             elif event_type == "response.audio_transcript.delta":
-                # Audio transcription chunk
-                transcript_delta = event.get("delta", "")
-                if transcript_delta and self.on_transcript_delta:
-                    self.on_transcript_delta(transcript_delta)
-                    carb.log_info(f"Audio transcription delta: {transcript_delta}")
+                # Audio response transcription chunk
+                delta = event.get("delta", "")
+                if self.on_response_transcript_delta and delta:
+                    self.on_response_transcript_delta(delta)
 
             elif event_type == "response.audio_transcript.done":
-                # Audio transcription completed
+                # Audio response transcription completed
                 transcript = event.get("transcript", "")
-                if transcript:
-                    carb.log_info(f"Audio transcription completed: {transcript}")
-                    self.on_text_done(transcript)
+                if self.on_response_transcript_done and transcript:
+                    self.on_response_transcript_done(transcript)
 
             elif event_type == "response.done":
                 carb.log_info("Response generation completed")

@@ -56,6 +56,11 @@ def truncate_string(text: str, max_length: int = 50) -> str:
     if len(text) <= max_length:
         return text
     return text[: max_length - 3] + "..."
+
+
 # extsUser/ivyverse/data/Omniverse Warehouse Scene Description.markdownv
 # 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
-# こんにちは。仮想工場には何がありますか？
+# sk-proj-
+# Fq1RJChoMJOcTejVnqjVyn6_8kyRlVwUDI22Lucv9-
+# B4wkJmDqxv1HbZa0xqz0UdbpblMk5bUkT3BlbkFJ4WNwPs3NWpQKLi3jnUc_HSh1iNq8w-gshWurhj78jOCoZzzzePlBbz396AFsapeWD3U7kdRR4A
+# にちは！Ivyverseへようこそ！USDシーンの理解と分析をお手伝いします。

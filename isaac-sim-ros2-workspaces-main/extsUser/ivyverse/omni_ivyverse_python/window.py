@@ -113,7 +113,6 @@ class IvyverseWindow(ui.Window):
                                         name="api-key-field",
                                         password_mode=True,
                                         style_type_name_override="InputField",
-                                        # style={"background_color": cl.color.black},
                                     )
                                     self._save_button = ui.Button(
                                         "Save",
@@ -259,15 +258,18 @@ class IvyverseWindow(ui.Window):
     def _setup_voice_callbacks(self):
         """Setup callbacks for voice interface"""
         self.voice_interface.set_ui_callbacks(
-            on_transcript_update=self._on_transcript_update,
+            # on_transcript_update=self._on_transcript_update,
             on_status_update=self._on_voice_status_update,
             on_error=self._on_voice_error,
             on_audio_playback_start=self._on_audio_playback_start,
             on_audio_playback_end=self._on_audio_playback_end,
-            on_text_response_delta=self._on_text_response_delta,
-            on_text_response_done=self._on_text_response_done,
+            # on_text_response_delta=self._on_text_response_delta,
+            # on_text_response_done=self._on_text_response_done,
             on_speech_started=self._on_speech_started,
             on_speech_stopped=self._on_speech_stopped,
+            on_user_transcript_complete=self._on_user_transcript_complete,
+            on_response_transcript_delta=self._on_response_transcript_delta,
+            on_response_transcript_done=self._on_response_transcript_done,
         )
 
     def _initialize_voice_connection(self):
@@ -347,7 +349,7 @@ class IvyverseWindow(ui.Window):
         if self.chat_interface:
             timestamp = datetime.datetime.now().strftime("%H:%M %p")
             status_msg = f"RAG {'enabled' if rag_enabled else 'disabled'} for voice and chat interactions"
-            self.chat_interface._add_assistant_message(status_msg, timestamp, "System")
+            self.chat_interface.add_assistant_message(status_msg, timestamp, "System")
 
         carb.log_info(
             f"RAG settings applied - RAG: {'enabled' if rag_enabled else 'disabled'}"
@@ -489,24 +491,32 @@ class IvyverseWindow(ui.Window):
         except Exception as e:
             carb.log_error(f"Error processing uploaded audio: {e}")
             if self.chat_interface:
-                timestamp = datetime.datetime.now().strftime("%H:%M %p")
-                self.chat_interface._add_assistant_message(
-                    f"Error processing audio file: {str(e)}", timestamp, "Voice System"
+                self.chat_interface.add_assistant_message(
+                    f"Error processing audio file: {str(e)}", "Voice System"
                 )
 
-    # Voice interface callback methods
-    def _on_transcript_update(self, transcript: str):
-        """Handle transcript updates from voice interface"""
+    def _on_user_transcript_complete(self, transcript: str):
+        """Handle completed user transcription"""
         if self._conversation_mode:
             # In conversation mode, add transcript directly to chat
             if self.chat_interface and transcript:
-                self.chat_interface.add_voice_transcript(transcript)
+                self.chat_interface.add_user_message(transcript)
         else:
             # In voice input mode, update input field
             if self._chat_input and transcript:
                 self._chat_input.model.set_value(transcript)
+        carb.log_info(f"User transcript complete: {transcript}")
 
-        carb.log_info(f"Transcript updated: {transcript}")
+    def _on_response_transcript_delta(self, delta: str):
+        """Handle response transcription updates"""
+        if self.chat_interface:
+            self.chat_interface.add_live_transcript(delta, is_done=False)
+
+    def _on_response_transcript_done(self, full_text: str):
+        """Handle completion of response transcription"""
+        if self.chat_interface:
+            self.chat_interface.add_live_transcript("", is_done=True)
+        carb.log_info(f"Response transcript done: {full_text}")
 
     def _on_voice_status_update(self, message: str, has_activity: bool):
         """Handle status updates from voice interface"""
@@ -569,6 +579,7 @@ class IvyverseWindow(ui.Window):
             success = await self.voice_interface.enable_conversation_mode()
             if success:
                 self._conversation_mode = True
+                self._conversation_button.name = "audio-wave"
                 self._conversation_button.style = {
                     "background_color": cl.color("#4CAF50")
                 }  # Green
@@ -578,9 +589,8 @@ class IvyverseWindow(ui.Window):
 
                 # Add system message
                 if self.chat_interface:
-                    self.chat_interface.add_assistant_message(
-                        "Conversation mode enabled. Start speaking naturally!",
-                        "System",
+                    self.chat_interface.add_system_message(
+                        "Conversation mode enabled. Start speaking naturally!"
                     )
 
         except Exception as e:
@@ -592,16 +602,14 @@ class IvyverseWindow(ui.Window):
             await self.voice_interface.disable_conversation_mode()
             self._conversation_mode = False
             self._conversation_active = False
+            self._conversation_button.name = "conversation"
             self._conversation_button.style = {
                 "background_color": cl.color("#00B4D8")
             }  # Blue
 
             # Add system message
             if self.chat_interface:
-                self.chat_interface.add_assistant_message(
-                    "Conversation mode disabled.",
-                    "System",
-                )
+                self.chat_interface.add_system_message("Conversation mode disabled.")
 
         except Exception as e:
             carb.log_error(f"Failed to disable conversation mode: {e}")
